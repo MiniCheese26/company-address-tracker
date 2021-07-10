@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "module": "commonjs",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": "./src",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "paths": {
+      "App/*": ["app/*"],
+      "Types/*": ["app/types/*"],
+      "Styles/*": ["app/styles/*"],
+      "Components/*": ["app/components/*"],
+      "Resources/*": ["app/resources/*"]
+    },
+    "typeRoots": [
+      "node_modules/@types",
+      "src/app/types"
+    ],
+    "jsx": "react",
+    "target": "ESNext",
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
