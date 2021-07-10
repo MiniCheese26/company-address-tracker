@@ -16,7 +16,8 @@
     "@typescript-eslint/no-var-requires": "off",
     "semi": "error",
     "quotes": ["error", "single"],
-    "@typescript-eslint/explicit-module-boundary-types": "off"
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "no-mixed-spaces-and-tabs": "off"
   },
   "parser": "@typescript-eslint/parser",
   "settings": {

@@ -63,6 +63,8 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.57",
     "@electron-forge/plugin-webpack": "6.0.0-beta.57",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
+    "@styled-icons/boxicons-regular": "^10.34.0",
+    "@styled-icons/material": "^10.34.0",
     "@types/node": "^16.0.1",
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.9",
