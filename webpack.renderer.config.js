@@ -14,7 +14,8 @@ module.exports = {
       'Types': path.resolve(__dirname, './src/app/types'),
       'Styles': path.resolve(__dirname, './src/app/styles'),
       'Components': path.resolve(__dirname, './src/app/components'),
-      'Resources': path.resolve(__dirname, './src/app/resources')
+      'Resources': path.resolve(__dirname, './src/app/resources'),
+      'Sql': path.resolve(__dirname, './src/sql')
     }
   },
 };

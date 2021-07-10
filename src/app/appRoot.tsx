@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import GlobalDefault from 'Styles/globalDefault';
 import AddBar from 'Components/addBar';
@@ -14,13 +14,21 @@ const RootContainer = styled.div`
   justify-content: center;
 `;
 
+export type SearchResult = {
+  id: number,
+  company_name: string,
+  address: string
+}
+
 export default function App() {
+  const [results, setResults] = useState<SearchResult[]>([]);
+
   return (
     <RootContainer>
       <GlobalDefault/>
       <GlobalFonts/>
       <AddBar/>
-      <SearchBar/>
+      <SearchBar setResults={setResults}/>
       <Results/>
     </RootContainer>
   );

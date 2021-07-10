@@ -27,5 +27,5 @@ module.exports = [
   {
     test: /\.(woff|woff2)([?]?.*)$/,
     use: ['file-loader']
-  }
+  },
 ];

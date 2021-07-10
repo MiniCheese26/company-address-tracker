@@ -15,7 +15,8 @@
       "Types/*": ["app/types/*"],
       "Styles/*": ["app/styles/*"],
       "Components/*": ["app/components/*"],
-      "Resources/*": ["app/resources/*"]
+      "Resources/*": ["app/resources/*"],
+      "Sql/*": ["sql/*"]
     },
     "typeRoots": [
       "node_modules/@types",

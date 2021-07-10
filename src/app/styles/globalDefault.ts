@@ -7,6 +7,7 @@ export default createGlobalStyle`
     outline: 0;
     border: 0;
     box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
   }
 
   *:focus {
@@ -15,7 +16,6 @@ export default createGlobalStyle`
 
   html, body, #root {
     height: 100%;
-	font-family: 'Montserrat', sans-serif;
   }
 
   body {

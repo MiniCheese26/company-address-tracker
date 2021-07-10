@@ -8,7 +8,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts ."
+    "lint": "eslint --ext .ts .",
+    "rebuild": "electron-rebuild -f -w sqlite3"
   },
   "keywords": [],
   "author": "Emily Medhurst",
@@ -64,15 +65,19 @@
     "@electron-forge/plugin-webpack": "6.0.0-beta.57",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "@styled-icons/boxicons-regular": "^10.34.0",
+    "@styled-icons/evaicons-outline": "^10.34.0",
+    "@styled-icons/fa-regular": "^10.34.0",
     "@styled-icons/material": "^10.34.0",
+    "@types/better-sqlite3": "^5.4.3",
     "@types/node": "^16.0.1",
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.9",
-    "@types/sqlite3": "^3.1.7",
     "@types/styled-components": "^5.1.11",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.28.2",
+    "better-sqlite3": "^7.4.1",
     "electron": "13.1.6",
+    "electron-rebuild": "^2.3.5",
     "eslint": "^7.6.0",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.23.4",
@@ -80,7 +85,6 @@
     "fork-ts-checker-webpack-plugin": "^6.0.1",
     "node-loader": "^2.0.0",
     "react-is": "^17.0.2",
-    "sqlite3": "^5.0.2",
     "style-loader": "^2.0.0",
     "styled-components": "^5.3.0",
     "ts-loader": "^9.2.2",
@@ -89,6 +93,7 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
+    "node-gyp": "^8.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

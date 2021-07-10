@@ -1,8 +1,12 @@
 import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
+import {SearchResult} from 'App/appRoot';
+
+const electron = window.require('electron');
+const ipcRenderer  = electron.ipcRenderer;
 
 const SearchBarContainer = styled.section`
-  flex: 2;
+  flex: 1 0 10%;
   display: flex;
   justify-content: center;
 `;
@@ -17,19 +21,35 @@ const SearchBarStyle = styled.input`
   box-shadow: 0 0 30px #979797;
   border-bottom: 0 solid #7B828E;
   transition: border-bottom .4s ease-in-out;
-  
+
   &:focus {
     border-bottom: 6px solid #9F9FED;
   }
 `;
 
-export default function SearchBar() {
-  const [input, setInput] = useState('');
+export type SearchBarProps = {
+  setResults: React.Dispatch<React.SetStateAction<SearchResult[]>>
+}
+
+export default function SearchBar(props: SearchBarProps) {
+  const [timeout, setTimoutState] = useState<NodeJS.Timeout>(undefined);
   const inputElement = useRef<HTMLInputElement>();
 
   const onChange = () => {
 	if (inputElement.current) {
-	  setInput(inputElement.current.value);
+	  if (timeout) {
+		clearTimeout(timeout);
+	  }
+
+	  setTimoutState(setTimeout(() => {
+	    ipcRenderer.on('from-query-get-all', (event, arg: SearchResult[]) => {
+	      console.log(arg[0].company_name);
+	      props.setResults(arg);
+		  setTimoutState(undefined);
+		});
+
+	    ipcRenderer.send('to-query-get-all', {statement: 'SELECT * FROM addresses WHERE company_name LIKE (? || \'%\')', getArgs: [inputElement.current.value]});
+	  }, 500));
 	}
   };
 
