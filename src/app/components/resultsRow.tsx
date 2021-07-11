@@ -3,7 +3,11 @@ import styled, {css} from 'styled-components';
 import {Delete as DeleteIcon} from '@styled-icons/material/Delete';
 import {Edit as EditIcon} from '@styled-icons/boxicons-regular/Edit';
 import {Copy as CopyIcon} from '@styled-icons/fa-regular/Copy';
-import {CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
+import {CheckmarkOutline, CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
+import {SearchResult} from 'App/appRoot';
+
+const electron = window.require('electron');
+const ipcRenderer = electron.ipcRenderer;
 
 const ResultsRowContainer = styled.div`
   flex: 1;
@@ -16,6 +20,7 @@ const ResultsRowContainer = styled.div`
 
   & > div:not(:first-child) > div {
     padding-left: 0.4rem;
+    padding-right: 0.4rem;
     border-left: 2px solid #CCC;
   }
 `;
@@ -39,11 +44,11 @@ const IconContainer = styled.div`
     box-shadow: 0 0 20px #9F9FED;
     cursor: pointer;
   }
-  
+
   &:active {
-	background-color: #b4b4e8;
+    background-color: #b4b4e8;
   }
-  
+
   &:active > svg {
     width: 35px;
     height: 35px;
@@ -101,6 +106,11 @@ const Checkmark = styled(CheckmarkSquareOutline)`
   color: #393E41;
 `;
 
+const EditCheckmark = styled(CheckmarkOutline)`
+  ${IconCss};
+  color: #44BBA4;
+`;
+
 const ResultsBorderContainer = styled.div`
   flex: 1;
   display: flex;
@@ -112,6 +122,9 @@ const ResultsText = styled.input`
   flex: 1;
   font-size: 24px;
   font-family: 'Montserrat', sans-serif;
+  border-radius: 3px;
+  padding: 0.3rem;
+  border-bottom: 5px solid transparent;
 `;
 
 const ResultsAddress = styled.div`
@@ -119,49 +132,98 @@ const ResultsAddress = styled.div`
 `;
 
 export type ResultsRowProps = {
-  company: string,
-  address: string
+  searchResult: SearchResult,
+  reloadResults: () => void
 }
 
 export default function ResultsRow(props: ResultsRowProps) {
-  const [toggle, setToggle] = useState(false);
+  const [copyToggle, setCopyToggle] = useState(false);
+  const [editToggle, setEditToggle] = useState(false);
   const addressRef = useRef<HTMLInputElement>();
+  const companyNameRef = useRef<HTMLInputElement>();
 
   const toggleOnCopyClick = () => {
-    if (addressRef.current) {
-      navigator.clipboard.writeText(addressRef.current.value);
+	if (addressRef.current) {
+	  const copyContents = props.searchResult.company_name + '\n\n' + props.searchResult.address.replaceAll('####', '\n');
+	  navigator.clipboard.writeText(copyContents);
 	}
-    setToggle(true);
-    setTimeout(() => {
-      setToggle(false);
+	setCopyToggle(true);
+	setTimeout(() => {
+	  setCopyToggle(false);
 	}, 1000);
+  };
+
+  const onEditClick = () => {
+	ipcRenderer.on('from-query-run', (event, arg) => {
+	  if (arg.changes < 1) {
+		console.log('Error encountered');
+	  } else {
+		props.reloadResults();
+	  }
+	});
+
+	if (editToggle) {
+	  ipcRenderer.send(
+		'to-query-run',
+		{
+		  statement: 'UPDATE addresses SET company_name = ?, address = ? WHERE id = ?',
+		  runArgs: [companyNameRef.current.value, addressRef.current.value, props.searchResult.id]
+		}
+	  );
+	  setEditToggle(false);
+	} else {
+	  setEditToggle(true);
+	}
+  };
+
+  const onDeleteClick = () => {
+	ipcRenderer.on('from-query-run', () => {
+	  props.reloadResults();
+	});
+
+	ipcRenderer.send(
+	  'to-query-run',
+	  {
+		statement: 'DELETE FROM addresses WHERE id = ?',
+		runArgs: [props.searchResult.id]
+	  }
+	);
   };
 
   return (
 	<ResultsRowContainer>
 	  <ResultsAction>
 		<IconContainer>
-		  <Delete/>
+		  <Delete onClick={() => onDeleteClick()}/>
 		</IconContainer>
-		<IconContainer>
-		  <Edit/>
+		<IconContainer onClick={() => onEditClick()}>
+		  {editToggle ? <EditCheckmark/> : <Edit/>}
 		</IconContainer>
 	  </ResultsAction>
 	  <ResultsCompany>
 		<ResultsBorderContainer>
-		  <ResultsText value={props.company} spellCheck={false}/>
+		  {editToggle ? <ResultsText ref={companyNameRef} defaultValue={props.searchResult.company_name}
+									 spellCheck={false}
+									 style={{backgroundColor: '#f3f3f3', borderBottom: '5px solid #DDD'}}/> :
+			<ResultsText ref={companyNameRef}
+						 value={props.searchResult.company_name}
+						 spellCheck={false} readOnly={true}/>}
 		</ResultsBorderContainer>
 	  </ResultsCompany>
 	  <ResultsAddress>
 		<ResultsBorderContainer>
-		  <ResultsText ref={addressRef} value={props.address} spellCheck={false}/>
+		  {editToggle ? <ResultsText ref={addressRef} defaultValue={props.searchResult.address.replaceAll('####', ' ')}
+									 spellCheck={false}
+									 style={{backgroundColor: '#f3f3f3', borderBottom: '5px solid #DDD'}}/> :
+			<ResultsText ref={addressRef} value={props.searchResult.address.replaceAll('####', ' ')} spellCheck={false}
+						 readOnly={true}/>}
 		</ResultsBorderContainer>
 	  </ResultsAddress>
 	  <ResultsCopy>
 		<ResultsBorderContainer>
 		  <ResultsCopyContainer>
 			<IconContainer onClick={() => toggleOnCopyClick()}>
-			  {toggle ? <Checkmark/> : <Copy/>}
+			  {copyToggle ? <Checkmark/> : <Copy/>}
 			</IconContainer>
 		  </ResultsCopyContainer>
 		</ResultsBorderContainer>

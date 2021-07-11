@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import ResultsRow from 'Components/resultsRow';
+import {SearchResult} from 'App/appRoot';
 
 const ResultsContainer = styled.section`
   flex: 4;
@@ -14,11 +15,17 @@ const ResultsContainer = styled.section`
   border-radius: 10px;
 `;
 
-export default function Results() {
+export type ResultsProps = {
+  searchResults: SearchResult[],
+  reloadResults: () => void
+}
+
+export default function Results(props: ResultsProps) {
+  const rows = props.searchResults.map(x => <ResultsRow searchResult={x} reloadResults={props.reloadResults}/>);
+
   return (
 	<ResultsContainer>
-	  <ResultsRow address={'test'} company={'d'}/>
-	  <ResultsRow address={'dd'} company={'gf'}/>
+	  {rows}
 	</ResultsContainer>
   );
 }

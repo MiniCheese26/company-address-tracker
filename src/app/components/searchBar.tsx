@@ -1,9 +1,9 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import {SearchResult} from 'App/appRoot';
 
 const electron = window.require('electron');
-const ipcRenderer  = electron.ipcRenderer;
+const ipcRenderer = electron.ipcRenderer;
 
 const SearchBarContainer = styled.section`
   flex: 1 0 10%;
@@ -28,7 +28,8 @@ const SearchBarStyle = styled.input`
 `;
 
 export type SearchBarProps = {
-  setResults: React.Dispatch<React.SetStateAction<SearchResult[]>>
+  setResults: React.Dispatch<React.SetStateAction<SearchResult[]>>,
+  setCurrentSearchTerm: React.Dispatch<React.SetStateAction<string>>
 }
 
 export default function SearchBar(props: SearchBarProps) {
@@ -42,16 +43,18 @@ export default function SearchBar(props: SearchBarProps) {
 	  }
 
 	  setTimoutState(setTimeout(() => {
-	    ipcRenderer.on('from-query-get-all', (event, arg: SearchResult[]) => {
-	      console.log(arg[0].company_name);
-	      props.setResults(arg);
-		  setTimoutState(undefined);
-		});
-
-	    ipcRenderer.send('to-query-get-all', {statement: 'SELECT * FROM addresses WHERE company_name LIKE (? || \'%\')', getArgs: [inputElement.current.value]});
+	    props.setCurrentSearchTerm(inputElement.current.value);
 	  }, 500));
 	}
   };
+
+  useEffect(() => {
+	ipcRenderer.on('from-query-get-all', (event, arg: SearchResult[]) => {
+	  props.setResults(arg);
+	});
+
+	//ipcRenderer.send('to-query-get-all', {statement: 'SELECT * FROM addresses', getArgs: []});
+  }, []);
 
   return (
 	<SearchBarContainer>
