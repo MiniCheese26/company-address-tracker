@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
 import {SearchResult} from 'App/appRoot';
 
@@ -48,19 +48,9 @@ export default function SearchBar(props: SearchBarProps) {
 	}
   };
 
-  useEffect(() => {
-	ipcRenderer.on('from-query-get-all', (event, arg: SearchResult[]) => {
-	  props.setResults(arg);
-	});
-
-	//ipcRenderer.send('to-query-get-all', {statement: 'SELECT * FROM addresses', getArgs: []});
-  }, []);
-
   return (
 	<SearchBarContainer>
-	  <SearchBarStyle ref={inputElement} onChange={() => onChange()} placeholder="Enter company name...">
-
-	  </SearchBarStyle>
+	  <SearchBarStyle ref={inputElement} onChange={() => onChange()} placeholder="Enter search term..."/>
 	</SearchBarContainer>
   );
 }

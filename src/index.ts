@@ -11,6 +11,23 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
+export type QueryGetArgs = {
+  statement: string,
+  getArgs?: unknown[],
+  responseId?: string
+}
+
+export interface QueryResponse<T> {
+  data: T,
+  responseId?: string
+}
+
+export type QueryRunArgs = {
+  statement: string,
+  runArgs?: unknown[],
+  responseId?: string
+}
+
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -25,6 +42,58 @@ const createWindow = (): void => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  const database = SQLite('data.sqlite3');
+
+  database.exec(`CREATE TABLE IF NOT EXISTS "addresses"
+                 (
+                     "id"           INTEGER,
+                     "company_name" TEXT    NOT NULL,
+                     "city"         TEXT    NOT NULL,
+                     "county"       TEXT,
+                     "postcode"     TEXT    NOT NULL,
+                     "time_added"   INTEGER NOT NULL,
+                     PRIMARY KEY ("id" AUTOINCREMENT)
+                 )`);
+
+  database.exec(`CREATE TABLE IF NOT EXISTS "address_lines"
+                 (
+                     "id"           INTEGER,
+                     "address_id"   INTEGER,
+                     "address_line" TEXT NOT NULL,
+                     FOREIGN KEY ("address_id") REFERENCES "addresses" ("id"),
+                     PRIMARY KEY ("id" AUTOINCREMENT)
+                 )`);
+
+  ipcMain.on('to-query-run', (event, args: QueryRunArgs) => {
+	const stmt = database.prepare(args.statement);
+
+	event.reply('from-query-run', {data: stmt.run(args.runArgs), responseId: args.responseId});
+  });
+
+  ipcMain.on('to-query-transaction', (event, args: QueryRunArgs) => {
+	const stmt = database.prepare(args.statement);
+
+	const insertMany = database.transaction((addresses: unknown[]) => {
+	  addresses.forEach(address => {
+		stmt.run(address);
+	  });
+	});
+
+	event.reply('from-query-transaction', {data: insertMany(args.runArgs), responseId: args.responseId});
+  });
+
+  ipcMain.on('to-query-get', (event, args: QueryGetArgs) => {
+	const stmt = database.prepare(args.statement);
+
+	event.reply('from-query-get', {data: stmt.get(args.getArgs), responseId: args.responseId});
+  });
+
+  ipcMain.on('to-query-get-all', (event, args: QueryGetArgs) => {
+	const stmt = database.prepare(args.statement);
+
+	event.reply('from-query-get-all', {data: stmt.all(args.getArgs), responseId: args.responseId});
+  });
 };
 
 // This method will be called when Electron has finished
@@ -52,34 +121,3 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-const database = SQLite('data.sqlite3');
-
-export type QueryRunArgs = {
-  statement: string,
-  runArgs?: unknown[],
-  responseId?: string
-}
-
-ipcMain.on('to-query-run', (event, args: QueryRunArgs) => {
-  const stmt = database.prepare(args.statement);
-
-  event.reply('from-query-run', {data: stmt.run(args.runArgs), responseId: args.responseId});
-});
-
-export type QueryGetArgs = {
-  statement: string,
-  getArgs?: unknown[],
-  responseId?: string
-}
-
-ipcMain.on('to-query-get', (event, args: QueryGetArgs) => {
-  const stmt = database.prepare(args.statement);
-
-  event.reply('from-query-get', {data: stmt.get(args.getArgs), responseId: args.responseId});
-});
-
-ipcMain.on('to-query-get-all', (event, args: QueryGetArgs) => {
-  const stmt = database.prepare(args.statement);
-
-  event.reply('from-query-get-all', {data: stmt.all(args.getArgs), responseId: args.responseId});
-});

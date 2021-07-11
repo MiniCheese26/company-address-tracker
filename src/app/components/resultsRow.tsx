@@ -5,6 +5,8 @@ import {Edit as EditIcon} from '@styled-icons/boxicons-regular/Edit';
 import {Copy as CopyIcon} from '@styled-icons/fa-regular/Copy';
 import {CheckmarkOutline, CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
 import {SearchResult} from 'App/appRoot';
+import {nanoid} from 'nanoid';
+import InfoEditorModal from 'Components/infoEditorModal';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -13,7 +15,7 @@ const ResultsRowContainer = styled.div`
   flex: 1;
   display: grid;
   grid-template-areas: 'actions company address copy';
-  grid-template-columns: 1fr 3fr 3fr .75fr;
+  grid-template-columns: 1fr 3fr 5fr .75fr;
   width: 100%;
   max-height: 80px;
   border-bottom: 3px solid #CCC;
@@ -22,6 +24,11 @@ const ResultsRowContainer = styled.div`
     padding-left: 0.4rem;
     padding-right: 0.4rem;
     border-left: 2px solid #CCC;
+  }
+  
+  & > div {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 `;
 
@@ -120,11 +127,12 @@ const ResultsBorderContainer = styled.div`
 
 const ResultsText = styled.input`
   flex: 1;
-  font-size: 24px;
+  font-size: 20px;
   font-family: 'Montserrat', sans-serif;
   border-radius: 3px;
   padding: 0.3rem;
   border-bottom: 5px solid transparent;
+  overflow-x: auto;
 `;
 
 const ResultsAddress = styled.div`
@@ -144,7 +152,8 @@ export default function ResultsRow(props: ResultsRowProps) {
 
   const toggleOnCopyClick = () => {
 	if (addressRef.current) {
-	  const copyContents = props.searchResult.company_name + '\n\n' + props.searchResult.address.replaceAll('####', '\n');
+	  const copyContents = `${props.searchResult.company_name}\n\n${props.searchResult.address_lines.split(', ')
+		.join('\n')}\n${props.searchResult.city}\n${props.searchResult.county}\n${props.searchResult.postcode}`;
 	  navigator.clipboard.writeText(copyContents);
 	}
 	setCopyToggle(true);
@@ -154,22 +163,7 @@ export default function ResultsRow(props: ResultsRowProps) {
   };
 
   const onEditClick = () => {
-	ipcRenderer.on('from-query-run', (event, arg) => {
-	  if (arg.changes < 1) {
-		console.log('Error encountered');
-	  } else {
-		props.reloadResults();
-	  }
-	});
-
 	if (editToggle) {
-	  ipcRenderer.send(
-		'to-query-run',
-		{
-		  statement: 'UPDATE addresses SET company_name = ?, address = ? WHERE id = ?',
-		  runArgs: [companyNameRef.current.value, addressRef.current.value, props.searchResult.id]
-		}
-	  );
 	  setEditToggle(false);
 	} else {
 	  setEditToggle(true);
@@ -177,46 +171,57 @@ export default function ResultsRow(props: ResultsRowProps) {
   };
 
   const onDeleteClick = () => {
-	ipcRenderer.on('from-query-run', () => {
-	  props.reloadResults();
+	const responseId = nanoid(4);
+
+	ipcRenderer.on('from-query-run', (event, args) => {
+	  if (responseId === args.responseId) {
+		props.reloadResults();
+	  }
 	});
 
 	ipcRenderer.send(
 	  'to-query-run',
 	  {
-		statement: 'DELETE FROM addresses WHERE id = ?',
+		statement: 'DELETE FROM address_lines WHERE address_id = ?',
 		runArgs: [props.searchResult.id]
+	  }
+	);
+
+	ipcRenderer.send(
+	  'to-query-run',
+	  {
+		statement: 'DELETE FROM addresses WHERE id = ?',
+		runArgs: [props.searchResult.id],
+		responseId
 	  }
 	);
   };
 
+  const addressString = `${props.searchResult.address_lines}, ${props.searchResult.city}, ${props.searchResult.county}, ${props.searchResult.postcode}`;
+
   return (
 	<ResultsRowContainer>
+	  {editToggle ? <InfoEditorModal reloadResults={props.reloadResults} setToggled={setEditToggle} operation={'update'}
+									 existingSearchResult={props.searchResult}/> : null}
 	  <ResultsAction>
-		<IconContainer>
-		  <Delete onClick={() => onDeleteClick()}/>
+		<IconContainer onClick={() => onDeleteClick()}>
+		  <Delete/>
 		</IconContainer>
 		<IconContainer onClick={() => onEditClick()}>
-		  {editToggle ? <EditCheckmark/> : <Edit/>}
+		  <Edit/>
 		</IconContainer>
 	  </ResultsAction>
 	  <ResultsCompany>
 		<ResultsBorderContainer>
-		  {editToggle ? <ResultsText ref={companyNameRef} defaultValue={props.searchResult.company_name}
-									 spellCheck={false}
-									 style={{backgroundColor: '#f3f3f3', borderBottom: '5px solid #DDD'}}/> :
-			<ResultsText ref={companyNameRef}
-						 value={props.searchResult.company_name}
-						 spellCheck={false} readOnly={true}/>}
+		  <ResultsText ref={companyNameRef}
+					   value={props.searchResult.company_name}
+					   spellCheck={false} readOnly={true}/>
 		</ResultsBorderContainer>
 	  </ResultsCompany>
 	  <ResultsAddress>
 		<ResultsBorderContainer>
-		  {editToggle ? <ResultsText ref={addressRef} defaultValue={props.searchResult.address.replaceAll('####', ' ')}
-									 spellCheck={false}
-									 style={{backgroundColor: '#f3f3f3', borderBottom: '5px solid #DDD'}}/> :
-			<ResultsText ref={addressRef} value={props.searchResult.address.replaceAll('####', ' ')} spellCheck={false}
-						 readOnly={true}/>}
+		  <ResultsText ref={addressRef} value={addressString} spellCheck={false}
+					   readOnly={true}/>
 		</ResultsBorderContainer>
 	  </ResultsAddress>
 	  <ResultsCopy>
