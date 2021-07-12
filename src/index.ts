@@ -58,7 +58,7 @@ const createWindow = (): void => {
 	webPreferences: {
 	  nodeIntegration: true,
 	  contextIsolation: false,
-	  devTools: false
+	  devTools: process.env.ENV === 'DEV'
 	}
   });
 
