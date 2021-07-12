@@ -9,8 +9,13 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts .",
-    "rebuild": "electron-rebuild"
+    "rebuild": "electron-rebuild",
+    "rebuild-sqlite3": "cd node_modules/better-sqlite3 && HOME=~/.electron-gyp node-gyp rebuild --target=13.1.6 --arch=x64 --dist-url=https://electronjs.org/headers"
   },
+  "os": [
+    "win32",
+    "linux"
+  ],
   "keywords": [],
   "author": "Emily Medhurst",
   "license": "MIT",
@@ -21,7 +26,8 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "electron_test"
+            "name": "company-address-tracker",
+            "authors": "Emily Medhurst"
           }
         },
         {
@@ -48,7 +54,10 @@
             }
           }
         ]
-      ]
+      ],
+      "electronPackagerConfig": {
+        "dir": "./dist"
+      }
     }
   },
   "devDependencies": {
@@ -63,6 +72,7 @@
     "@styled-icons/fa-regular": "^10.34.0",
     "@styled-icons/material": "^10.34.0",
     "@types/better-sqlite3": "^5.4.3",
+    "@types/electron-json-storage": "^4.5.0",
     "@types/node": "^16.0.1",
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.9",
@@ -71,6 +81,8 @@
     "@typescript-eslint/parser": "^4.28.2",
     "better-sqlite3": "^7.4.1",
     "electron": "13.1.6",
+    "electron-context-menu": "^3.1.1",
+    "electron-json-storage": "^4.5.0",
     "electron-rebuild": "^2.3.5",
     "eslint": "^7.6.0",
     "eslint-import-resolver-typescript": "^2.4.0",
@@ -80,7 +92,9 @@
     "nanoid": "^3.1.23",
     "node-gyp": "^8.1.0",
     "node-loader": "^2.0.0",
+    "react-async-hook": "^3.6.2",
     "react-is": "^17.0.2",
+    "react-spring": "^9.2.3",
     "style-loader": "^2.0.0",
     "styled-components": "^5.3.0",
     "ts-loader": "^9.2.2",

@@ -23,6 +23,7 @@ export type SearchResult = {
   company_name: string,
   city: string,
   county?: string,
+  country?: string,
   postcode: string,
   address_lines: string
   address_line_ids: string
@@ -31,6 +32,8 @@ export type SearchResult = {
 export default function App() {
   const [currentSearchTerm, setCurrentSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
+
+
 
   const reloadResults = () => {
 	ipcRenderer.on('from-query-get-all', (event, args: QueryResponse<SearchResult[]>) => {
@@ -44,6 +47,7 @@ export default function App() {
                            city,
                            company_name,
                            county,
+                           country,
                            postcode,
                            group_concat(address_line, ', ') as address_lines,
                            group_concat(address_lines.id)   as address_line_ids

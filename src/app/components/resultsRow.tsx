@@ -3,7 +3,7 @@ import styled, {css} from 'styled-components';
 import {Delete as DeleteIcon} from '@styled-icons/material/Delete';
 import {Edit as EditIcon} from '@styled-icons/boxicons-regular/Edit';
 import {Copy as CopyIcon} from '@styled-icons/fa-regular/Copy';
-import {CheckmarkOutline, CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
+import {CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
 import {SearchResult} from 'App/appRoot';
 import {nanoid} from 'nanoid';
 import InfoEditorModal from 'Components/infoEditorModal';
@@ -25,7 +25,7 @@ const ResultsRowContainer = styled.div`
     padding-right: 0.4rem;
     border-left: 2px solid #CCC;
   }
-  
+
   & > div {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
@@ -113,11 +113,6 @@ const Checkmark = styled(CheckmarkSquareOutline)`
   color: #393E41;
 `;
 
-const EditCheckmark = styled(CheckmarkOutline)`
-  ${IconCss};
-  color: #44BBA4;
-`;
-
 const ResultsBorderContainer = styled.div`
   flex: 1;
   display: flex;
@@ -125,14 +120,12 @@ const ResultsBorderContainer = styled.div`
   align-items: center;
 `;
 
-const ResultsText = styled.input`
+const ResultsText = styled.p`
   flex: 1;
-  font-size: 20px;
-  font-family: 'Montserrat', sans-serif;
   border-radius: 3px;
+  font-size: 16px;
   padding: 0.3rem;
   border-bottom: 5px solid transparent;
-  overflow-x: auto;
 `;
 
 const ResultsAddress = styled.div`
@@ -152,7 +145,7 @@ export default function ResultsRow(props: ResultsRowProps) {
 
   const toggleOnCopyClick = () => {
 	if (addressRef.current) {
-	  const copyContents = `${props.searchResult.company_name}\n\n${props.searchResult.address_lines.split(', ')
+	  const copyContents = `${props.searchResult.company_name}\n${props.searchResult.address_lines.split(', ')
 		.join('\n')}\n${props.searchResult.city}\n${props.searchResult.county}\n${props.searchResult.postcode}`;
 	  navigator.clipboard.writeText(copyContents);
 	}
@@ -197,7 +190,7 @@ export default function ResultsRow(props: ResultsRowProps) {
 	);
   };
 
-  const addressString = `${props.searchResult.address_lines}, ${props.searchResult.city}, ${props.searchResult.county}, ${props.searchResult.postcode}`;
+  const addressString = `${props.searchResult.address_lines}, ${props.searchResult.city}, ${props.searchResult.county}, ${props.searchResult.country}, ${props.searchResult.postcode}`;
 
   return (
 	<ResultsRowContainer>
@@ -213,15 +206,12 @@ export default function ResultsRow(props: ResultsRowProps) {
 	  </ResultsAction>
 	  <ResultsCompany>
 		<ResultsBorderContainer>
-		  <ResultsText ref={companyNameRef}
-					   value={props.searchResult.company_name}
-					   spellCheck={false} readOnly={true}/>
+		  <ResultsText ref={companyNameRef}>{props.searchResult.company_name}</ResultsText>
 		</ResultsBorderContainer>
 	  </ResultsCompany>
 	  <ResultsAddress>
 		<ResultsBorderContainer>
-		  <ResultsText ref={addressRef} value={addressString} spellCheck={false}
-					   readOnly={true}/>
+		  <ResultsText ref={addressRef}>{addressString}</ResultsText>
 		</ResultsBorderContainer>
 	  </ResultsAddress>
 	  <ResultsCopy>
