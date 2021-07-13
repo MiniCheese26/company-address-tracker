@@ -2,7 +2,6 @@ import {app, BrowserWindow, dialog, ipcMain} from 'electron';
 import SQLite from 'better-sqlite3';
 import * as fs from 'fs/promises';
 import contextMenu from 'electron-context-menu';
-import storage from 'electron-json-storage';
 
 contextMenu();
 
@@ -57,8 +56,7 @@ const createWindow = (): void => {
 	backgroundColor: '#FFF',
 	webPreferences: {
 	  nodeIntegration: true,
-	  contextIsolation: false,
-	  devTools: process.env.ENV === 'DEV'
+	  contextIsolation: false
 	}
   });
 
@@ -66,14 +64,6 @@ const createWindow = (): void => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
-  storage.has('settings', (err, hasKey) => {
-    if (!hasKey) {
-      storage.set('settings', {databasePath: 'data.sqlite'}, (err) => {
-        console.log(err);
-	  });
-	}
-  });
 
   const database = SQLite('data.sqlite3');
 

@@ -4,7 +4,7 @@
   "description": "Here to track addresses",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "yes | cp better-sqlite3-prebuilds/linux/better_sqlite3.node node_modules/better-sqlite3/build/Release && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "win32-make": "yes | cp better-sqlite3-prebuilds/windows/better_sqlite3.node node_modules/better-sqlite3/build/Release && yarn run make -p win32",
@@ -30,12 +30,6 @@
             "name": "company-address-tracker",
             "authors": "Emily Medhurst"
           }
-        },
-        {
-          "name": "@electron-forge/maker-zip",
-          "platforms": [
-            "darwin"
-          ]
         }
       ],
       "plugins": [
@@ -64,7 +58,6 @@
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.57",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.57",
-    "@electron-forge/maker-zip": "^6.0.0-beta.57",
     "@electron-forge/plugin-webpack": "6.0.0-beta.57",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "@styled-icons/boxicons-regular": "^10.34.0",
@@ -73,7 +66,6 @@
     "@styled-icons/fa-regular": "^10.34.0",
     "@styled-icons/material": "^10.34.0",
     "@types/better-sqlite3": "^5.4.3",
-    "@types/electron-json-storage": "^4.5.0",
     "@types/node": "^16.0.1",
     "@types/react": "^17.0.14",
     "@types/react-dom": "^17.0.9",
@@ -83,7 +75,6 @@
     "better-sqlite3": "^7.4.1",
     "electron": "13.1.6",
     "electron-context-menu": "^3.1.1",
-    "electron-json-storage": "^4.5.0",
     "electron-rebuild": "^2.3.5",
     "eslint": "^7.6.0",
     "eslint-import-resolver-typescript": "^2.4.0",
@@ -93,9 +84,7 @@
     "nanoid": "^3.1.23",
     "node-gyp": "^8.1.0",
     "node-loader": "^2.0.0",
-    "react-async-hook": "^3.6.2",
     "react-is": "^17.0.2",
-    "style-loader": "^2.0.0",
     "styled-components": "^5.3.0",
     "ts-loader": "^9.2.2",
     "typescript": "^4.0.2",

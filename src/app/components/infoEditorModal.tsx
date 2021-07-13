@@ -99,7 +99,7 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 		ipcRenderer.on('from-query-run', (event, args) => {
 		  if (args.responseId === responseId) {
 			const firstResponseId = nanoid(4);
-			const secondResponseId = nanoid(4);
+			let secondResponseId: string = undefined;
 
 			ipcRenderer.on('from-query-transaction', (event, args) => {
 			  if (firstResponseId === args.responseId) {
@@ -113,10 +113,9 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 				  countryRef.current.value = '';
 				  addressRefs[0].current.value = '';
 				  setNumberOfAddressLines(1);
-				  // this is a race condition waiting to happen
-				} /*else if (props.operation === 'update') {
+				} else if (!secondResponseId && props.operation === 'update') {
 				  props.setToggled(false);
-				}*/
+				}
 			  } else if (secondResponseId === args.responseId) {
 				props.reloadResults();
 
@@ -150,6 +149,7 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 			  );
 
 			  if (props.existingSearchResult.address_lines.split(', ').length > numberOfAddressLines) {
+			    secondResponseId = nanoid(4);
 				const idsToDelete = props.existingSearchResult.address_line_ids.split(',').slice(numberOfAddressLines);
 
 				ipcRenderer.send(
@@ -163,6 +163,7 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 				  }
 				);
 			  } else if (props.existingSearchResult.address_lines.split(', ').length < numberOfAddressLines) {
+				secondResponseId = nanoid(4);
 				const entriesToAdd = addressRefs.slice(props.existingSearchResult.address_line_ids.split(',').length);
 
 				ipcRenderer.send(

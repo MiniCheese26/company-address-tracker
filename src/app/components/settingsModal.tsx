@@ -11,7 +11,6 @@ import {
 import {FolderOpen} from '@styled-icons/boxicons-regular';
 import React, {useRef} from 'react';
 import styled from 'styled-components';
-import useSettings from 'App/hooks/useSettings';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -27,7 +26,6 @@ export type SettingsModalProps = {
 }
 
 export default function SettingsModal(props: SettingsModalProps) {
-  const [settings, writeSettings] = useSettings();
   const databasePathRef = useRef<HTMLInputElement>();
 
   const onDatabaseBrowseClick = () => {
