@@ -1,6 +1,6 @@
 {
   "name": "company-address-tracker",
-  "version": "1.0.4",
+  "version": "1.0.0",
   "description": "Here to track addresses",
   "main": ".webpack/main",
   "scripts": {

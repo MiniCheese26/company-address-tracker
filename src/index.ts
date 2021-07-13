@@ -1,4 +1,4 @@
-import {app, BrowserWindow, dialog, ipcMain} from 'electron';
+import {app, autoUpdater, BrowserWindow, dialog, ipcMain} from 'electron';
 import SQLite from 'better-sqlite3';
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
@@ -178,6 +178,28 @@ const createWindow = (): void => {
 	event.returnValue = {data: true};
   });
 
+  autoUpdater.on('checking-for-update', () => {
+    console.log('checking');
+  });
+
+  autoUpdater.on('update-available', () => {
+    console.log('available');
+  });
+
+  autoUpdater.on('update-not-available', () => {
+    console.log('not available');
+  });
+
+  autoUpdater.setFeedURL({
+	url: 'https://raw.githubusercontent.com/MiniCheese26/company-address-tracker/main/RELEASES/RELEASES?token=AFPHZGN3BHTMTY2HM7UQ45DA64REG'
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.log('ERROR', err);
+  });
+
+  autoUpdater.checkForUpdates();
+
   // Set global temporary directory for things like auto update downloads, creating it if it doesn't exist already.
   const tempPath = path.join(app.getPath('temp'), 'NTWRK');
   if (!fsSync.existsSync(tempPath)) fsSync.mkdirSync(tempPath);
@@ -213,9 +235,6 @@ const createWindow = (): void => {
 
 	  await fs.writeFile(path.join(tempPath, nuPkgFilename), await nuPkg.buffer());
 	  await fs.writeFile(path.join(tempPath, releasesFilename), await releases.buffer());
-
-	  console.log('test');
-	  console.log('1.0.4!');
 	}
   )();
 };
