@@ -10,7 +10,8 @@ jobs:
         with:
           node-version: '16'
           cache: 'yarn'
-      - run: npm i --vs2015 -g windows-build-tools
+      - run: npm config set msvs_version 2017
+      - run: npm config set msbuild_path "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe"
       - run: yarn install
       - run: yarn run rebuild-sqlite3
       - run: yarn run rebuild
