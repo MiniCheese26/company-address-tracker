@@ -215,7 +215,7 @@ const createWindow = (): void => {
 	  await fs.writeFile(path.join(tempPath, releasesFilename), await releases.buffer());
 
 	  console.log('test');
-
+	  console.log('1.0.4!');
 	}
   )();
 };

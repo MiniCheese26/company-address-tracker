@@ -1,6 +1,6 @@
 {
   "name": "company-address-tracker",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Here to track addresses",
   "main": ".webpack/main",
   "scripts": {
@@ -30,7 +30,7 @@
           "config": {
             "name": "company-address-tracker",
             "authors": "Emily Medhurst",
-            "remoteReleases": "https://github.com/MiniCheese26/company-address-tracker/",
+            "remoteReleases": "https://github.com/MiniCheese26/company-address-tracker",
             "remoteToken": "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"
           }
         }
@@ -72,7 +72,6 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.57",
-    "@electron-forge/maker-deb": "^6.0.0-beta.57",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.57",
     "@electron-forge/plugin-webpack": "6.0.0-beta.57",
     "@electron-forge/publisher-github": "^6.0.0-beta.57",
