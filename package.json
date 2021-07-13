@@ -9,7 +9,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "win32-make": "yes | cp better-sqlite3-prebuilds/windows/better_sqlite3.node node_modules/better-sqlite3/build/Release && yarn run make -p win32",
-    "publish": "electron-forge publish",
+    "publish": "yes | cp better-sqlite3-prebuilds/linux/better_sqlite3.node node_modules/better-sqlite3/build/Release && electron-forge publish",
     "lint": "eslint --ext .ts .",
     "rebuild": "electron-rebuild",
     "rebuild-sqlite3": "cd node_modules/better-sqlite3 && HOME=~/.electron-gyp node-gyp rebuild --target=13.1.6 --arch=x64 --dist-url=https://electronjs.org/headers"
@@ -30,6 +30,15 @@
           "config": {
             "name": "company-address-tracker",
             "authors": "Emily Medhurst"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {
+            "options": {
+              "maintainer": "Joe Bloggs",
+              "homepage": "https://example.com"
+            }
           }
         }
       ],
@@ -70,6 +79,7 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.57",
+    "@electron-forge/maker-deb": "^6.0.0-beta.57",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.57",
     "@electron-forge/plugin-webpack": "6.0.0-beta.57",
     "@electron-forge/publisher-github": "^6.0.0-beta.57",
