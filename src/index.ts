@@ -1,4 +1,4 @@
-import {app, autoUpdater, BrowserWindow, dialog, ipcMain} from 'electron';
+import {app, BrowserWindow, dialog, ipcMain} from 'electron';
 import SQLite from 'better-sqlite3';
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
@@ -67,52 +67,6 @@ const createWindow = (): void => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-
-  // Set global temporary directory for things like auto update downloads, creating it if it doesn't exist already.
-  const tempPath = path.join(app.getPath('temp'), 'NTWRK');
-  if (!fsSync.existsSync(tempPath)) fsSync.mkdirSync(tempPath);
-
-  (
-	async () => {
-	  const requestOptions = {
-		method: 'GET',
-		headers: {
-		  Authorization: 'Bearer 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'
-		},
-		redirect: 'follow',
-		follow: 3
-	  } as RequestInit;
-
-	  const downloadRequestOptions = {...requestOptions};
-	  downloadRequestOptions.headers = {...downloadRequestOptions.headers, ...{Accept: 'application/octet-stream'}};
-
-	  const latestAssets = await fetch(
-		'https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/latest',
-		requestOptions
-	  );
-
-	  const json = await latestAssets.json();
-
-	  const nuPkgFilename = json.assets[0].name;
-	  const releasesFilename = json.assets[2].name;
-	  const nuPkgUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[0].id}`;
-	  const releasesUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[2].id}`;
-
-	  const nuPkg = await fetch(nuPkgUrl, downloadRequestOptions);
-	  const releases = await fetch(releasesUrl, downloadRequestOptions);
-
-	  await fs.writeFile(path.join(tempPath, nuPkgFilename), await nuPkg.buffer());
-	  await fs.writeFile(path.join(tempPath, releasesFilename), await releases.buffer());
-
-	  console.log('setting feed url');
-
-	  autoUpdater.setFeedURL({
-		url: tempPath
-	  });
-
-	  autoUpdater.checkForUpdates();
-	}
-  )();
 
   const database = SQLite('data.sqlite3');
 
@@ -223,6 +177,47 @@ const createWindow = (): void => {
 
 	event.returnValue = {data: true};
   });
+
+  // Set global temporary directory for things like auto update downloads, creating it if it doesn't exist already.
+  const tempPath = path.join(app.getPath('temp'), 'NTWRK');
+  if (!fsSync.existsSync(tempPath)) fsSync.mkdirSync(tempPath);
+
+  (
+	async () => {
+	  const requestOptions = {
+		method: 'GET',
+		headers: {
+		  Authorization: 'Bearer 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'
+		},
+		redirect: 'follow',
+		follow: 3
+	  } as RequestInit;
+
+	  const downloadRequestOptions = {...requestOptions};
+	  downloadRequestOptions.headers = {...downloadRequestOptions.headers, ...{Accept: 'application/octet-stream'}};
+
+	  const latestAssets = await fetch(
+		'https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/latest',
+		requestOptions
+	  );
+
+	  const json = await latestAssets.json();
+
+	  const nuPkgFilename = json.assets[0].name;
+	  const releasesFilename = json.assets[2].name;
+	  const nuPkgUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[0].id}`;
+	  const releasesUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[2].id}`;
+
+	  const nuPkg = await fetch(nuPkgUrl, downloadRequestOptions);
+	  const releases = await fetch(releasesUrl, downloadRequestOptions);
+
+	  await fs.writeFile(path.join(tempPath, nuPkgFilename), await nuPkg.buffer());
+	  await fs.writeFile(path.join(tempPath, releasesFilename), await releases.buffer());
+
+	  console.log('test');
+
+	}
+  )();
 };
 
 // This method will be called when Electron has finished

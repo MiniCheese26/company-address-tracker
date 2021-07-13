@@ -7,6 +7,7 @@ import {CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
 import {SearchResult} from 'App/appRoot';
 import {nanoid} from 'nanoid';
 import InfoEditorModal from 'Components/infoEditorModal';
+import {clipboard} from 'electron';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -147,7 +148,7 @@ export default function ResultsRow(props: ResultsRowProps) {
 	if (addressRef.current) {
 	  const copyContents = `${props.searchResult.company_name}\n${props.searchResult.address_lines.split(', ')
 		.join('\n')}\n${props.searchResult.city}\n${props.searchResult.county}\n${props.searchResult.postcode}`;
-	  navigator.clipboard.writeText(copyContents);
+	  clipboard.writeText(copyContents);
 	}
 	setCopyToggle(true);
 	setTimeout(() => {

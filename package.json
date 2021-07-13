@@ -29,16 +29,9 @@
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "company-address-tracker",
-            "authors": "Emily Medhurst"
-          }
-        },
-        {
-          "name": "@electron-forge/maker-deb",
-          "config": {
-            "options": {
-              "maintainer": "Joe Bloggs",
-              "homepage": "https://example.com"
-            }
+            "authors": "Emily Medhurst",
+            "remoteReleases": "        }\n",
+            "remoteToken": "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"
           }
         }
       ],
@@ -102,6 +95,7 @@
     "electron-dl": "^3.2.1",
     "electron-fetch": "^1.7.3",
     "electron-rebuild": "^2.3.5",
+    "electron-updater": "^4.3.9",
     "eslint": "^7.6.0",
     "eslint-import-resolver-typescript": "^2.4.0",
     "eslint-plugin-import": "^2.23.4",
