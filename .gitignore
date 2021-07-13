@@ -90,3 +90,4 @@ out/
 /.idea/
 
 .vercel
+/data.sqlite3

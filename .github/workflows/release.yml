@@ -20,7 +20,7 @@ jobs:
       - name: Add wine to path
         run: export PATH="/usr/bin:$PATH"
       - name: Install rust
-        run: curl https://sh.rustup.rs -sSf | sh
+        run: curl https://sh.rustup.rs -o rust.sh && chmod +x rust.sh && ./rust.sh -y
       - name: Install sd
         run: cargo install sd
       - run: yarn install
