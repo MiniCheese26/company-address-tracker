@@ -9,7 +9,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "win32-make": "yes | cp better-sqlite3-prebuilds/windows/better_sqlite3.node node_modules/better-sqlite3/build/Release && yarn run make -p win32",
-    "publish": "yes | cp better-sqlite3-prebuilds/linux/better_sqlite3.node node_modules/better-sqlite3/build/Release && electron-forge publish",
+    "publish": "yes | cp better-sqlite3-prebuilds/windows/better_sqlite3.node node_modules/better-sqlite3/build/Release && electron-forge publish",
     "lint": "eslint --ext .ts .",
     "rebuild": "electron-rebuild",
     "rebuild-sqlite3": "cd node_modules/better-sqlite3 && node-gyp rebuild --target=13.1.6 --arch=x64 --dist-url=https://electronjs.org/headers"
