@@ -16,9 +16,13 @@ jobs:
           node-version: '16'
           cache: 'yarn'
       - name: Install wine
-        run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install wine sd -y
+        run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install wine -y
       - name: Add wine to path
         run: export PATH="/usr/bin:$PATH"
+      - name: Install rust
+        run: curl https://sh.rustup.rs -sSf | sh
+      - name: Install sd
+        run: cargo install sd
       - run: yarn install
       - name: Run publish dry run
         run: yarn run publish --dry-run -p win32
