@@ -12,8 +12,8 @@ jobs:
       - uses: borales/actions-yarn@v2.3.0
         with:
           cmd: install
-      - name: Install wine64
-        run: sudo apt-get install wine64 -y
       - uses: borales/actions-yarn@v2.3.0
+        name: Install wine64
+        run: sudo apt-get install wine64 -y
         with:
           cmd: win32-make
