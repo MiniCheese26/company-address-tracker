@@ -10,6 +10,7 @@ jobs:
         with:
           node-version: '16'
           cache: 'yarn'
+      - run: npm i --vs2015 -g windows-build-tools
       - run: yarn install
       - run: yarn run rebuild-sqlite3
       - run: yarn run rebuild
