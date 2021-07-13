@@ -5,17 +5,13 @@ jobs:
   build_for_windows:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@master
-        with:
-          node-version: 16
-      - uses: borales/actions-yarn@v2.3.0
-        with:
-          cmd: install
       - name: Install wine64
         run: sudo apt-get install wine64 -y
       - name: Add wine64 to path
         run: export PATH="/usr/bin:$PATH"
-      - uses: borales/actions-yarn@v2.3.0
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
-          cmd: win32-make
+          node-version: 16
+      - run: yarn install
+      - run: yarn run win32-make
