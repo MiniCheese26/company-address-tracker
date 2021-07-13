@@ -2,17 +2,15 @@ name: Build
 on: [ push, pull_request ]
 
 jobs:
-  build_for_windows:
-    runs-on: ubuntu-latest
+  build_for_windows1:
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
           cache: 'yarn'
-      - name: Install wine
-        run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install wine -y
-      - name: Add wine to path
-        run: export PATH="/usr/bin:$PATH"
       - run: yarn install
+      - run: yarn run rebuild-sqlite3
+      - run: yarn run rebuild
       - run: yarn run win32-make
