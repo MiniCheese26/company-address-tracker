@@ -1,7 +1,11 @@
 import {app, BrowserWindow, dialog, ipcMain} from 'electron';
 import SQLite from 'better-sqlite3';
 import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import contextMenu from 'electron-context-menu';
+import path from 'path';
+import {download} from 'electron-dl';
+import fetch from 'electron-fetch';
 
 contextMenu();
 
@@ -64,6 +68,35 @@ const createWindow = (): void => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  // Set global temporary directory for things like auto update downloads, creating it if it doesn't exist already.
+  const tempPath = path.join(app.getPath('temp'), 'NTWRK');
+  if (!fsSync.existsSync(tempPath)) fsSync.mkdirSync(tempPath);
+
+  (
+	async () => {
+	  const p = await fetch('https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/latest', {
+	    method: 'GET',
+		headers: {
+	      Authorization: 'Basic TWluaUNoZWVzZTI2OmdocF83Wlp4Nlk1OXUySWhHZTBvd0pCN0U4MFdIMk4wZk8wZEh6aUw='
+		}
+	  });
+
+	  const json = await p.json();
+
+	  const nuPkgUrl = json.assets[0].browser_download_url;
+	  const releasesUrl = json.assets[2].browser_download_url;
+
+	  try {
+		const o = await download(mainWindow, nuPkgUrl, {
+		  directory: tempPath,
+		  onProgress: progress => mainWindow.webContents.send('downloadProgress', progress)
+		});
+	  } catch (e) {
+	    console.log(e);
+	  }
+	}
+  )();
 
   const database = SQLite('data.sqlite3');
 

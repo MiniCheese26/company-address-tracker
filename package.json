@@ -1,10 +1,11 @@
 {
   "name": "company-address-tracker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Here to track addresses",
   "main": ".webpack/main",
   "scripts": {
     "start": "yes | cp better-sqlite3-prebuilds/linux/better_sqlite3.node node_modules/better-sqlite3/build/Release && electron-forge start",
+    "win-start": "cp better-sqlite3-prebuilds/windows/better_sqlite3.node node_modules/better-sqlite3/build/Release && electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "win32-make": "yes | cp better-sqlite3-prebuilds/windows/better_sqlite3.node node_modules/better-sqlite3/build/Release && yarn run make -p win32",
@@ -50,15 +51,28 @@
           }
         ]
       ],
-      "electronPackagerConfig": {
-        "dir": "./dist"
-      }
+      "publishers": [
+        {
+          "name": "@electron-forge/publisher-github",
+          "platforms": [
+            "win32"
+          ],
+          "config": {
+            "repository": {
+              "owner": "MiniCheese26",
+              "name": "company-address-tracker"
+            },
+            "authToken": "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"
+          }
+        }
+      ]
     }
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.57",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.57",
     "@electron-forge/plugin-webpack": "6.0.0-beta.57",
+    "@electron-forge/publisher-github": "^6.0.0-beta.57",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "@styled-icons/boxicons-regular": "^10.34.0",
     "@styled-icons/entypo": "^10.34.0",
@@ -75,6 +89,8 @@
     "better-sqlite3": "^7.4.1",
     "electron": "13.1.6",
     "electron-context-menu": "^3.1.1",
+    "electron-dl": "^3.2.1",
+    "electron-fetch": "^1.7.3",
     "electron-rebuild": "^2.3.5",
     "eslint": "^7.6.0",
     "eslint-import-resolver-typescript": "^2.4.0",
