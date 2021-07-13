@@ -1,11 +1,10 @@
-import {app, BrowserWindow, dialog, ipcMain} from 'electron';
+import {app, autoUpdater, BrowserWindow, dialog, ipcMain} from 'electron';
 import SQLite from 'better-sqlite3';
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
 import contextMenu from 'electron-context-menu';
 import path from 'path';
-import {download} from 'electron-dl';
-import fetch from 'electron-fetch';
+import fetch, {RequestInit} from 'electron-fetch';
 
 contextMenu();
 
@@ -75,26 +74,43 @@ const createWindow = (): void => {
 
   (
 	async () => {
-	  const p = await fetch('https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/latest', {
-	    method: 'GET',
+	  const requestOptions = {
+		method: 'GET',
 		headers: {
-	      Authorization: 'Basic TWluaUNoZWVzZTI2OmdocF83Wlp4Nlk1OXUySWhHZTBvd0pCN0U4MFdIMk4wZk8wZEh6aUw='
-		}
+		  Authorization: 'Bearer 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'
+		},
+		redirect: 'follow',
+		follow: 3
+	  } as RequestInit;
+
+	  const downloadRequestOptions = {...requestOptions};
+	  downloadRequestOptions.headers = {...downloadRequestOptions.headers, ...{Accept: 'application/octet-stream'}};
+
+	  const latestAssets = await fetch(
+		'https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/latest',
+		requestOptions
+	  );
+
+	  const json = await latestAssets.json();
+
+	  const nuPkgFilename = json.assets[0].name;
+	  const releasesFilename = json.assets[2].name;
+	  const nuPkgUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[0].id}`;
+	  const releasesUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[2].id}`;
+
+	  const nuPkg = await fetch(nuPkgUrl, downloadRequestOptions);
+	  const releases = await fetch(releasesUrl, downloadRequestOptions);
+
+	  await fs.writeFile(path.join(tempPath, nuPkgFilename), await nuPkg.buffer());
+	  await fs.writeFile(path.join(tempPath, releasesFilename), await releases.buffer());
+
+	  console.log('setting feed url');
+
+	  autoUpdater.setFeedURL({
+		url: tempPath
 	  });
 
-	  const json = await p.json();
-
-	  const nuPkgUrl = json.assets[0].browser_download_url;
-	  const releasesUrl = json.assets[2].browser_download_url;
-
-	  try {
-		const o = await download(mainWindow, nuPkgUrl, {
-		  directory: tempPath,
-		  onProgress: progress => mainWindow.webContents.send('downloadProgress', progress)
-		});
-	  } catch (e) {
-	    console.log(e);
-	  }
+	  autoUpdater.checkForUpdates();
 	}
   )();
 

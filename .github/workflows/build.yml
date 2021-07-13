@@ -15,4 +15,5 @@ jobs:
       - name: Add wine to path
         run: export PATH="/usr/bin:$PATH"
       - run: yarn install
-      - run: yarn run win32-make
+      - name: Build application
+        run: yarn run win32-make
