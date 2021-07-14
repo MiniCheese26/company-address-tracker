@@ -45,3 +45,4 @@ jobs:
           access-key: AKIAQWXRPHKDXS3VME3A
           secret-key: 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
           bucket: companyaddresstrackerpseudo
+          region: eu-west-2
