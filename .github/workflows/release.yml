@@ -44,7 +44,7 @@ jobs:
       - run: git config --local user.email "action@actions.com" && git config --local user.name "github-actions"
       - run: git add --all
       - run: git commit -m "Add releases to repo" -a
-      - name: Push to repo
-      uses: ad-m/github-push-action@master
+      - name: Publish to repo
+        uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
