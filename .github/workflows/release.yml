@@ -40,13 +40,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn run publish --from-dry-run -p win32
-      - run: version=$(cat package.json | jq -r '.version')
-      - run: yes | cp out/make/squirrel.windows/x64/*$version* RELEASES/
-      - run: yes | cp out/make/squirrel.windows/x64/RELEASES RELEASES/
       - name: Upload to S3 Bucket
         uses: Noelware/s3-action@1.2.0
         with:
-          directories: 'RELEASES'
+          directories: 'out/make/squirrel.windows/x64'
           access-key: AKIAQWXRPHKDXS3VME3A
           secret-key: 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
           name: companyaddresstrackerpseudo
