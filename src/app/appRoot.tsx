@@ -5,7 +5,8 @@ import AddBar from 'Components/addBar';
 import GlobalFonts from 'Resources/fonts/fonts';
 import SearchBar from 'Components/searchBar';
 import Results from 'Components/results';
-import {QueryResponse} from 'index';
+import {nanoid} from 'nanoid';
+import useSettings from './hooks/useSettings';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -32,35 +33,48 @@ export type SearchResult = {
 export default function App() {
   const [currentSearchTerm, setCurrentSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [settings, writeSettings] = useSettings();
 
+  useEffect(() => {
+	const userId = nanoid(5);
 
+	if (!settings.userId) {
+	  (async () => {
+		const result = await ipcRenderer.invoke(
+		  'to-query-postgres',
+		  {query: 'INSERT INTO users (id, username) VALUES ($1, $2)', args: [userId, 'emily']}
+		);
 
-  const reloadResults = () => {
-	ipcRenderer.on('from-query-get-all', (event, args: QueryResponse<SearchResult[]>) => {
-	  setResults(args.data);
-	});
+		if (result?.rowCount > 0) {
+		  settings.userId = userId;
+		  writeSettings(settings);
+		}
+	  })();
+	}
+  }, []);
 
-	ipcRenderer.send(
-	  'to-query-get-all',
-	  {
-		statement: `SELECT addresses.id,
+  const reloadResults = async () => {
+	const results = await ipcRenderer.invoke('to-query-postgres', {
+	  query: `SELECT addresses.id,
                            city,
                            company_name,
                            county,
                            country,
                            postcode,
-                           group_concat(address_line, ', ') as address_lines,
-                           group_concat(address_lines.id)   as address_line_ids
+                           string_agg(address_line::character varying, ', ') as address_lines,
+                           string_agg(address_lines.id::character varying, ',')   as address_line_ids
                     FROM addresses
-                             INNER JOIN address_lines ON addresses.id = address_lines.address_id
-                    WHERE addresses.company_name LIKE ('%' || ? || '%')
-                       OR addresses.postcode LIKE ('%' || ? || '%')
+                             JOIN address_lines ON addresses.id = address_lines.address_id
+                    WHERE addresses.company_name LIKE $1
+                       OR addresses.postcode LIKE $1
+                       AND addresses.user_id = $2
                     GROUP BY addresses.id, time_added
                     ORDER BY time_added DESC
                     LIMIT 10`,
-		getArgs: [currentSearchTerm, currentSearchTerm]
-	  }
-	);
+	  args: ['%' + currentSearchTerm + '%', settings.userId]
+	});
+
+	setResults(results.rows);
   };
 
   useEffect(() => {

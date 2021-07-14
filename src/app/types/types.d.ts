@@ -1,3 +1,4 @@
 export type Settings = {
-  databasePath: string
+  databasePath: string,
+  userId: string
 }

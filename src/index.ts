@@ -1,10 +1,9 @@
-import {app, autoUpdater, BrowserWindow, dialog, ipcMain} from 'electron';
-import SQLite from 'better-sqlite3';
+import {app, BrowserWindow, dialog, ipcMain} from 'electron';
 import * as fs from 'fs/promises';
-import * as fsSync from 'fs';
 import contextMenu from 'electron-context-menu';
-import path from 'path';
-import fetch, {RequestInit} from 'electron-fetch';
+import {QueryResult} from 'pg';
+
+const { Pool} = require('pg');
 
 contextMenu();
 
@@ -51,6 +50,16 @@ export type WriteFileArgs = {
   responseId?: string
 }
 
+export type PostgresQueryArgs = {
+  query: string,
+  args?: unknown[]
+}
+
+export type PostgresTransactionArgs = {
+  query: string,
+  args: unknown[][]
+}
+
 const createWindow = (): void => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -63,62 +72,17 @@ const createWindow = (): void => {
 	}
   });
 
-  mainWindow.removeMenu();
+  //mainWindow.removeMenu();
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
-  const database = SQLite('data.sqlite3');
-
-  database.exec(`CREATE TABLE IF NOT EXISTS "addresses"
-                 (
-                     "id"           INTEGER,
-                     "company_name" TEXT    NOT NULL,
-                     "city"         TEXT    NOT NULL,
-                     "county"       TEXT,
-                     "country"      TEXT,
-                     "postcode"     TEXT    NOT NULL,
-                     "time_added"   INTEGER NOT NULL,
-                     PRIMARY KEY ("id" AUTOINCREMENT)
-                 )`);
-
-  database.exec(`CREATE TABLE IF NOT EXISTS "address_lines"
-                 (
-                     "id"           INTEGER,
-                     "address_id"   INTEGER,
-                     "address_line" TEXT NOT NULL,
-                     FOREIGN KEY ("address_id") REFERENCES "addresses" ("id"),
-                     PRIMARY KEY ("id" AUTOINCREMENT)
-                 )`);
-
-  ipcMain.on('to-query-run', (event, args: QueryRunArgs) => {
-	const stmt = database.prepare(args.statement);
-
-	event.reply('from-query-run', {data: stmt.run(args.runArgs), responseId: args.responseId});
-  });
-
-  ipcMain.on('to-query-transaction', (event, args: QueryRunArgs) => {
-	const stmt = database.prepare(args.statement);
-
-	const insertMany = database.transaction((addresses: unknown[]) => {
-	  addresses.forEach(address => {
-		stmt.run(address);
-	  });
-	});
-
-	event.reply('from-query-transaction', {data: insertMany(args.runArgs), responseId: args.responseId});
-  });
-
-  ipcMain.on('to-query-get', (event, args: QueryGetArgs) => {
-	const stmt = database.prepare(args.statement);
-
-	event.reply('from-query-get', {data: stmt.get(args.getArgs), responseId: args.responseId});
-  });
-
-  ipcMain.on('to-query-get-all', (event, args: QueryGetArgs) => {
-	const stmt = database.prepare(args.statement);
-
-	event.reply('from-query-get-all', {data: stmt.all(args.getArgs), responseId: args.responseId});
+  const poolConfig = new Pool({
+	user: 'ubuntu',
+	host: 'ec2-18-168-226-3.eu-west-2.compute.amazonaws.com',
+	database: 'addresstrackerapp',
+	password: 'L5n684hVW$MK6v#d!of*6tN8f2NXSGK!39Fx3CjmzJwBDS8F&8',
+	port: 5432,
   });
 
   ipcMain.on('to-browse', async (event, args: BrowseArgs) => {
@@ -178,7 +142,38 @@ const createWindow = (): void => {
 	event.returnValue = {data: true};
   });
 
-  autoUpdater.on('checking-for-update', () => {
+  ipcMain.handle('to-query-postgres', async (event, args: PostgresQueryArgs) => {
+    const client = await poolConfig.connect();
+
+    try {
+	  const queryResult = await client.query(args.query, args.args);
+
+	  if (queryResult) {
+		return {rowCount: queryResult.rowCount, rows: queryResult.rows};
+	  }
+	} finally {
+      client.release();
+	}
+
+	return undefined;
+  });
+
+  ipcMain.handle('to-transaction-postgres', async (event, args: PostgresTransactionArgs) => {
+	const client = await poolConfig.connect();
+
+	const results: QueryResult[] = [];
+
+	for (const x of args.args) {
+	  const queryResult = await client.query(args.query, x);
+	  results.push(queryResult);
+	}
+
+	client.release();
+
+	return results.map(x => ({rowCount: x.rowCount, rows: x.rows}));
+  });
+
+  /*autoUpdater.on('checking-for-update', () => {
     console.log('checking');
   });
 
@@ -198,10 +193,10 @@ const createWindow = (): void => {
     console.log('ERROR', err);
   });
 
-  autoUpdater.checkForUpdates();
+  autoUpdater.checkForUpdates();*/
 
   // Set global temporary directory for things like auto update downloads, creating it if it doesn't exist already.
-  const tempPath = path.join(app.getPath('temp'), 'NTWRK');
+  /*const tempPath = path.join(app.getPath('temp'), 'NTWRK');
   if (!fsSync.existsSync(tempPath)) fsSync.mkdirSync(tempPath);
 
   (
@@ -236,7 +231,7 @@ const createWindow = (): void => {
 	  await fs.writeFile(path.join(tempPath, nuPkgFilename), await nuPkg.buffer());
 	  await fs.writeFile(path.join(tempPath, releasesFilename), await releases.buffer());
 	}
-  )();
+  )();*/
 };
 
 // This method will be called when Electron has finished

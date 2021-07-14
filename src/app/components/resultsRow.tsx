@@ -5,7 +5,6 @@ import {Edit as EditIcon} from '@styled-icons/boxicons-regular/Edit';
 import {Copy as CopyIcon} from '@styled-icons/fa-regular/Copy';
 import {CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
 import {SearchResult} from 'App/appRoot';
-import {nanoid} from 'nanoid';
 import InfoEditorModal from 'Components/infoEditorModal';
 import {clipboard} from 'electron';
 
@@ -164,31 +163,24 @@ export default function ResultsRow(props: ResultsRowProps) {
 	}
   };
 
-  const onDeleteClick = () => {
-	const responseId = nanoid(4);
-
-	ipcRenderer.on('from-query-run', (event, args) => {
-	  if (responseId === args.responseId) {
-		props.reloadResults();
-	  }
-	});
-
-	ipcRenderer.send(
-	  'to-query-run',
+  const onDeleteClick = async () => {
+	await ipcRenderer.invoke(
+	  'to-query-postgres',
 	  {
-		statement: 'DELETE FROM address_lines WHERE address_id = ?',
-		runArgs: [props.searchResult.id]
+		query: 'DELETE FROM address_lines WHERE address_id = $1',
+		args: [props.searchResult.id]
 	  }
 	);
 
-	ipcRenderer.send(
-	  'to-query-run',
+	await ipcRenderer.invoke(
+	  'to-query-postgres',
 	  {
-		statement: 'DELETE FROM addresses WHERE id = ?',
-		runArgs: [props.searchResult.id],
-		responseId
+		query: 'DELETE FROM addresses WHERE id = $1',
+		args: [props.searchResult.id]
 	  }
 	);
+
+	props.reloadResults();
   };
 
   const addressString = `${props.searchResult.address_lines}, ${props.searchResult.city}, ${props.searchResult.county}, ${props.searchResult.country}, ${props.searchResult.postcode}`;
