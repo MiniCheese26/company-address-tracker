@@ -32,18 +32,14 @@ jobs:
       - name: Add wine to path
         run: export PATH="/usr/bin:$PATH"
       - run: yarn install
-      - name: Run publish dry run
-        run: yarn run publish --dry-run -p win32
-      - name: Fix artifacts file
-        run: sd ',"[^"]+delta\.nupkg"' '' out/publish-dry-run/*/*
       - name: Publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn run publish --from-dry-run -p win32
+        run: yarn run publish -p win32
       - name: Upload to S3 Bucket
         uses: Noelware/s3-action@1.2.0
         with:
           directories: 'out/make/squirrel.windows/x64'
           access-key: AKIAQWXRPHKDXS3VME3A
           secret-key: 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
-          name: companyaddresstrackerpseudo
+          bucket: companyaddresstrackerpseudo
