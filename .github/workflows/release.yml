@@ -1,9 +1,11 @@
 name: Release
-on:
-  workflow_run:
-    workflows: [ "Build" ]
-    types:
-      - completed
+#on:
+#  workflow_run:
+#    workflows: [ "Build" ]
+#    types:
+#      - completed
+
+on: [ push, pull_request ]
 
 jobs:
   publish_on_windows:
@@ -32,6 +34,7 @@ jobs:
       - run: yarn install
       - name: Run publish dry run
         run: yarn run publish --dry-run -p win32
+      - run: ls -l out/make/squirrel.windows/x64/
       - name: Fix artifacts file
         run: sd ',"[^"]+delta\.nupkg"' '' out/publish-dry-run/*/*
       - name: Publish
