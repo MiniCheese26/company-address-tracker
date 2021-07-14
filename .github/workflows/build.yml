@@ -12,4 +12,4 @@ jobs:
           cache: 'yarn'
       - run: yarn install
       - name: Build application
-        run: yarn run win32-make
+        run: yarn run make -p win32
