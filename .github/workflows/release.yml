@@ -40,14 +40,14 @@ jobs:
       - name: Publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: yarn run publish --from-dry-run -p win32
+        run: yarn run publish --from-dry-run --target s3 -p win32
       - run: version=$(cat package.json | jq -r '.version')
       - run: yes | cp out/make/squirrel.windows/x64/*$version* RELEASES/
       - run: yes | cp out/make/squirrel.windows/x64/RELEASES RELEASES/
-      - run: git config --local user.email "action@actions.com" && git config --local user.name "github-actions"
-      - run: git add --all
-      - run: git commit -m "Add releases to repo" -a
-      - name: Publish to repo
-        uses: ad-m/github-push-action@master
+      - name: Upload to S3 Bucket
+        uses: Noelware/s3-action@1.2.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          directories: 'RELEASES'
+          access-key: AKIAQWXRPHKDXS3VME3A
+          secret-key: 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
+          name: companyaddresstrackerpseudo

@@ -1,6 +1,6 @@
 {
   "name": "company-address-tracker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Here to track addresses",
   "main": ".webpack/main",
   "scripts": {
@@ -30,8 +30,7 @@
           "config": {
             "name": "company-address-tracker",
             "authors": "Emily Medhurst",
-            "remoteReleases": "https://github.com/MiniCheese26/company-address-tracker",
-            "remoteToken": "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"
+            "remoteReleases": "https://companyaddresstrackerpseudo.s3.eu-west-2.amazonaws.com/RELEASES/"
           }
         }
       ],
@@ -66,6 +65,15 @@
             },
             "authToken": "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"
           }
+        },
+        {
+          "name": "@electron-forge/publisher-s3",
+          "config": {
+            "bucket": "companyaddresstrackerpseudo",
+            "public": false,
+            "secretAccessKey": "sQgGZ1lCZDbGEmAfqkqwjLMhy7blSrMOuQ1aG7ht",
+            "accessKeyId": "AKIAQWXRPHKDXS3VME3A"
+          }
         }
       ]
     }
@@ -75,6 +83,7 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.57",
     "@electron-forge/plugin-webpack": "6.0.0-beta.57",
     "@electron-forge/publisher-github": "^6.0.0-beta.57",
+    "@electron-forge/publisher-s3": "^6.0.0-beta.57",
     "@marshallofsound/webpack-asset-relocator-loader": "^0.5.0",
     "@styled-icons/boxicons-regular": "^10.34.0",
     "@styled-icons/entypo": "^10.34.0",
