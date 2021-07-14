@@ -2,9 +2,6 @@ import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
 import {SearchResult} from 'App/appRoot';
 
-const electron = window.require('electron');
-const ipcRenderer = electron.ipcRenderer;
-
 const SearchBarContainer = styled.section`
   flex: 1 0 10%;
   display: flex;
@@ -50,7 +47,7 @@ export default function SearchBar(props: SearchBarProps) {
 
   return (
 	<SearchBarContainer>
-	  <SearchBarStyle ref={inputElement} onChange={() => onChange()} placeholder="Enter search term..."/>
+	  <SearchBarStyle ref={inputElement} onChange={() => onChange()} placeholder="Enter search term... v1.0.1"/>
 	</SearchBarContainer>
   );
 }
