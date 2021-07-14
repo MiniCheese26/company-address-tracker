@@ -15,17 +15,19 @@ jobs:
         with:
           node-version: '16'
           cache: 'yarn'
+      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: sd
       - name: Install wine
         run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install wine -y
       - name: Add wine to path
         run: export PATH="/usr/bin:$PATH"
-      - name: Install rust
-        run: curl https://sh.rustup.rs -o rust.sh && chmod +x rust.sh && ./rust.sh -y
-      - name: Install sd
-        run: cargo install sd
       - run: yarn install
       - name: Run publish dry run
         run: yarn run publish --dry-run -p win32
+      - run: cat out/publish-dry-run/*/*
       - name: Fix artifacts file
         run: sd ',"[^"]+delta\.nupkg"' '' out/publish-dry-run/*/*
       - name: Publish
