@@ -10,9 +10,9 @@ jobs:
         with:
           node-version: '16'
           cache: 'yarn'
-      - name: Get current package version
-        uses: martinbeentjes/npm-get-version-action@master
-      - run: echo RELEASES/win32/${{ steps.package-version.outputs.current-version }}
+      - name: Get package version
+        run: echo "PACKAGE_VERSION=$(cat package.json | jq -r '.version')" >> $GITHUB_ENV
+      - run: echo RELEASES/win32/${{ env.PACKAGE_VERSION }}
       - name: Install wine
         run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install wine -y
       - run: yarn install
@@ -28,5 +28,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'eu-west-2'
           SOURCE_DIR: 'out/make/squirrel.windows/x64'
-          DEST_DIR: RELEASES/win32/${{ steps.package-version.outputs.current-version }}
+          DEST_DIR: RELEASES/win32/${{ env.PACKAGE_VERSION }}
 
