@@ -27,5 +27,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'eu-west-2'
           SOURCE_DIR: 'out/make/squirrel.windows/x64'
-          DEST_DIR: 'RELEASES/win32/${{ steps.package-version.outputs.current-version}}'
+          DEST_DIR: format('RELEASES/win32/{0}', ${{ steps.package-version.outputs.current-version }})
 
