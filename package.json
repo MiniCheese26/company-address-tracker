@@ -1,6 +1,6 @@
 {
   "name": "company-address-tracker",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "description": "Here to track addresses",
   "main": ".webpack/main",
   "scripts": {
@@ -52,19 +52,6 @@
         ]
       ],
       "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "platforms": [
-            "win32"
-          ],
-          "config": {
-            "repository": {
-              "owner": "MiniCheese26",
-              "name": "company-address-tracker"
-            },
-            "authToken": "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"
-          }
-        },
         {
           "name": "@electron-forge/publisher-s3",
           "platforms": [

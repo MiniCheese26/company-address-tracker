@@ -1,4 +1,4 @@
-import {app, BrowserWindow, ipcMain} from 'electron';
+import {app, autoUpdater, BrowserWindow, ipcMain} from 'electron';
 import * as fs from 'fs/promises';
 import contextMenu from 'electron-context-menu';
 import {QueryResult} from 'pg';
@@ -15,11 +15,6 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
-}
-
-export type BrowseArgs = {
-  options: Electron.OpenDialogSyncOptions,
-  responseId?: string
 }
 
 export type ReadFileArgs = {
@@ -145,27 +140,27 @@ const createWindow = (): void => {
 	return results.map(x => ({rowCount: x.rowCount, rows: x.rows}));
   });
 
-  /*autoUpdater.on('checking-for-update', () => {
-    console.log('checking');
+  autoUpdater.on('checking-for-update', () => {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!checking');
   });
 
   autoUpdater.on('update-available', () => {
-    console.log('available');
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!available');
   });
 
   autoUpdater.on('update-not-available', () => {
-    console.log('not available');
-  });
-
-  autoUpdater.setFeedURL({
-	url: 'https://raw.githubusercontent.com/MiniCheese26/company-address-tracker/main/RELEASES/RELEASES?token=AFPHZGN3BHTMTY2HM7UQ45DA64REG'
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!not available');
   });
 
   autoUpdater.on('error', (err) => {
-    console.log('ERROR', err);
+	console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ERROR', err);
   });
 
-  autoUpdater.checkForUpdates();*/
+  autoUpdater.setFeedURL({
+	url: 'https://companyaddresstrackerpseudo.s3.eu-west-2.amazonaws.com/RELEASES/RELEASES'
+  });
+
+  autoUpdater.checkForUpdates();
 
   // Set global temporary directory for things like auto update downloads, creating it if it doesn't exist already.
   /*const tempPath = path.join(app.getPath('temp'), 'NTWRK');
@@ -173,35 +168,7 @@ const createWindow = (): void => {
 
   (
 	async () => {
-	  const requestOptions = {
-		method: 'GET',
-		headers: {
-		  Authorization: 'Bearer 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'
-		},
-		redirect: 'follow',
-		follow: 3
-	  } as RequestInit;
-
-	  const downloadRequestOptions = {...requestOptions};
-	  downloadRequestOptions.headers = {...downloadRequestOptions.headers, ...{Accept: 'application/octet-stream'}};
-
-	  const latestAssets = await fetch(
-		'https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/latest',
-		requestOptions
-	  );
-
-	  const json = await latestAssets.json();
-
-	  const nuPkgFilename = json.assets[0].name;
-	  const releasesFilename = json.assets[2].name;
-	  const nuPkgUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[0].id}`;
-	  const releasesUrl = `https://api.github.com/repos/MiniCheese26/company-address-tracker/releases/assets/${json.assets[2].id}`;
-
-	  const nuPkg = await fetch(nuPkgUrl, downloadRequestOptions);
-	  const releases = await fetch(releasesUrl, downloadRequestOptions);
-
-	  await fs.writeFile(path.join(tempPath, nuPkgFilename), await nuPkg.buffer());
-	  await fs.writeFile(path.join(tempPath, releasesFilename), await releases.buffer());
+	  const releases = await
 	}
   )();*/
 };
