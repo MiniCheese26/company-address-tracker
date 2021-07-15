@@ -1,4 +1,4 @@
-import {app, BrowserWindow, dialog, ipcMain} from 'electron';
+import {app, BrowserWindow, ipcMain} from 'electron';
 import * as fs from 'fs/promises';
 import contextMenu from 'electron-context-menu';
 import {QueryResult} from 'pg';
@@ -15,23 +15,6 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
-}
-
-export type QueryGetArgs = {
-  statement: string,
-  getArgs?: unknown[],
-  responseId?: string
-}
-
-export interface QueryResponse<T> {
-  data: T,
-  responseId?: string
-}
-
-export type QueryRunArgs = {
-  statement: string,
-  runArgs?: unknown[],
-  responseId?: string
 }
 
 export type BrowseArgs = {
@@ -78,33 +61,22 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   const poolConfig = new Pool({
-	user: 'ubuntu',
+	user: 'user',
 	host: 'ec2-18-168-226-3.eu-west-2.compute.amazonaws.com',
 	database: 'addresstrackerapp',
-	password: 'L5n684hVW$MK6v#d!of*6tN8f2NXSGK!39Fx3CjmzJwBDS8F&8',
 	port: 5432,
   });
 
-  ipcMain.on('to-browse', async (event, args: BrowseArgs) => {
-	const file = await dialog.showOpenDialog(new BrowserWindow({
-	  show: false,
-	  alwaysOnTop: true
-	}), args.options);
-
-	event.reply('from-browse', {data: file, responseId: args.responseId});
-  });
-
-  ipcMain.on('to-read-file', async (event, args: ReadFileArgs) => {
+  ipcMain.handle('to-read-file', async (event, args: ReadFileArgs) => {
 	let data;
 
 	try {
 	  data = await fs.readFile(args.filepath, 'utf-8');
 	} catch (e) {
-	  event.reply('from-read-file', {data: e, responseId: args.responseId, isError: true});
-	  return;
+	  return e;
 	}
 
-	event.reply('from-read-file', {data, responseId: args.responseId});
+	return data;
   });
 
   ipcMain.on('to-read-file-sync', async (event, args: ReadFileArgs) => {

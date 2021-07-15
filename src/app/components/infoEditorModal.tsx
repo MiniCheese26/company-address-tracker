@@ -15,6 +15,7 @@ import {
   RowContainer
 } from 'Styles/modal';
 import useSettings from 'App/hooks/useSettings';
+import {Settings} from 'Types/types';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -59,7 +60,8 @@ export type InfoEditorModalProps = {
 
 export default function InfoEditorModal(props: InfoEditorModalProps) {
   const [error, setError] = useState(false);
-  const [settings] = useSettings();
+  const settings = useRef<Settings>({userId: ''});
+  const [reloadSettings] = useSettings();
   const [numberOfAddressLines, setNumberOfAddressLines] = useState(1);
   const addressRefs = useRef<Array<HTMLInputElement>>([]);
   const companyNameRef = useRef<HTMLInputElement>();
@@ -80,6 +82,8 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 	  postcodeRef.current.value = props.existingSearchResult.postcode;
 	  setNumberOfAddressLines(props.existingSearchResult.address_lines.split(', ').length);
 	}
+
+	reloadSettings(settings.current);
   }, []);
 
   const onSubmitClick = async () => {
@@ -105,7 +109,7 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 				countryRef.current.value,
 				postcodeRef.current.value,
 				new Date().getTime(),
-				settings.userId
+				settings.current.userId
 			  ]
 			}
 		  );

@@ -3,14 +3,14 @@ import {Settings} from 'Types/types';
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
 
-let settings: Settings;
-
-export default function useSettings(): [Settings, (settings: Settings) => void, () => void] {
-  const reloadResults = () => {
-	settings = JSON.parse(ipcRenderer.sendSync(
-	  'to-read-file-sync',
+export default function useSettings(): [(settings: Settings) => Promise<void>, (settings: Settings) => void] {
+  const reloadResults = async (settings: Settings) => {
+	const settingsText = await ipcRenderer.invoke(
+	  'to-read-file',
 	  {filepath: 'settings.json'}
-	).data) as Settings;
+	);
+
+	settings = JSON.parse(settingsText);
   };
 
   const writeSettings = (settings: Settings) => {
@@ -20,9 +20,5 @@ export default function useSettings(): [Settings, (settings: Settings) => void, 
 	);
   };
 
-  if (!settings) {
-	reloadResults();
-  }
-
-  return [settings, writeSettings, reloadResults];
+  return [reloadResults, writeSettings];
 }

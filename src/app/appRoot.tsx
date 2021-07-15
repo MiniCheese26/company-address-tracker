@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import GlobalDefault from 'Styles/globalDefault';
 import AddBar from 'Components/addBar';
@@ -7,6 +7,7 @@ import SearchBar from 'Components/searchBar';
 import Results from 'Components/results';
 import {nanoid} from 'nanoid';
 import useSettings from './hooks/useSettings';
+import {Settings} from 'Types/types';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -33,24 +34,27 @@ export type SearchResult = {
 export default function App() {
   const [currentSearchTerm, setCurrentSearchTerm] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [settings, writeSettings] = useSettings();
+  const settings = useRef<Settings>({userId: ''});
+  const [reloadData, writeSettings] = useSettings();
 
   useEffect(() => {
-	const userId = nanoid(5);
+	reloadData(settings.current).then(() => {
+	  const userId = nanoid(5);
 
-	if (!settings.userId) {
-	  (async () => {
-		const result = await ipcRenderer.invoke(
-		  'to-query-postgres',
-		  {query: 'INSERT INTO users (id, username) VALUES ($1, $2)', args: [userId, 'emily']}
-		);
+	  if (!settings.current.userId) {
+		(async () => {
+		  const result = await ipcRenderer.invoke(
+			'to-query-postgres',
+			{query: 'INSERT INTO users (id, username) VALUES ($1, $2)', args: [userId, 'emily']}
+		  );
 
-		if (result?.rowCount > 0) {
-		  settings.userId = userId;
-		  writeSettings(settings);
-		}
-	  })();
-	}
+		  if (result?.rowCount > 0) {
+			settings.current.userId = userId;
+			writeSettings(settings.current);
+		  }
+		})();
+	  }
+	});
   }, []);
 
   const reloadResults = async () => {
@@ -71,7 +75,7 @@ export default function App() {
                     GROUP BY addresses.id, time_added
                     ORDER BY time_added DESC
                     LIMIT 10`,
-	  args: ['%' + currentSearchTerm + '%', settings.userId]
+	  args: ['%' + currentSearchTerm + '%', settings.current.userId]
 	});
 
 	setResults(results.rows);

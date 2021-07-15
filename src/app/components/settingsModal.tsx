@@ -1,15 +1,6 @@
-import {
-  Cross,
-  CrossContainer,
-  InputActionContainer,
-  InputField,
-  InputFieldContainer,
-  InputLabel,
-  ModalContainer,
-  RowContainer
-} from 'App/styles/modal';
+import {Cross, CrossContainer, InputField, ModalContainer, RowContainer} from 'App/styles/modal';
 import {FolderOpen} from '@styled-icons/boxicons-regular';
-import React, {useRef} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const electron = window.require('electron');
@@ -26,41 +17,12 @@ export type SettingsModalProps = {
 }
 
 export default function SettingsModal(props: SettingsModalProps) {
-  const databasePathRef = useRef<HTMLInputElement>();
-
-  const onDatabaseBrowseClick = () => {
-	ipcRenderer.on('from-browse', (event, args) => {
-	  if (!args.data.canceled && args.data?.filePaths && args.data.filePaths.length > 0) {
-		databasePathRef.current.value = args.data.filePaths[0];
-	  }
-	});
-
-	ipcRenderer.send('to-browse', {
-	  options: {
-		defaultPath: './',
-		filters: [
-		  {name: 'sqlite3', extensions: ['sqlite3']}
-		],
-		properties: ['openFile']
-	  }
-	});
-  };
-
   return (
 	<ModalContainer>
 	  <RowContainer style={{alignSelf: 'flex-end'}}>
 		<CrossContainer onClick={() => props.setToggled(false)}>
 		  <Cross/>
 		</CrossContainer>
-	  </RowContainer>
-	  <RowContainer>
-		<InputLabel>Path to sqlite3 database file</InputLabel>
-		<InputFieldContainer>
-		  <InputField ref={databasePathRef} style={{fontSize: '14px'}}/>
-		  <InputActionContainer style={{minWidth: '10%'}} onClick={() => onDatabaseBrowseClick()}>
-			<Folder/>
-		  </InputActionContainer>
-		</InputFieldContainer>
 	  </RowContainer>
 	  <RowContainer>
 		<InputField value={'STILL WORKING ON THIS, IGNORE'}/>
