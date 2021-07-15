@@ -5,21 +5,23 @@ jobs:
   publish_on_windows:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@master
         with:
           node-version: '16'
           cache: 'yarn'
       - name: Get current package version
-        uses: martinbeentjes/npm-get-version-action@v1.1.0
+        uses: martinbeentjes/npm-get-version-action@master
       - name: Install wine
         run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install wine -y
       - run: yarn install
       - name: Build
         run: yarn run make -p win32
       - name: S3 Sync
-        uses: jakejarvis/s3-sync-action@v0.5.1
+        uses: jakejarvis/s3-sync-action@master
         with:
+          args: --acl public-read --follow-symlinks
+        env:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
