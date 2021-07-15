@@ -36,6 +36,7 @@ export default function App() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const settings = useRef<Settings>({userId: ''});
   const [reloadData, writeSettings] = useSettings();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
 	reloadData(settings.current).then(() => {
@@ -58,6 +59,8 @@ export default function App() {
   }, []);
 
   const reloadResults = async () => {
+    setIsLoading(true);
+
 	const results = await ipcRenderer.invoke('to-query-postgres', {
 	  query: `SELECT addresses.id,
                            city,
@@ -79,6 +82,7 @@ export default function App() {
 	});
 
 	setResults(results.rows);
+	setIsLoading(false);
   };
 
   useEffect(() => {
