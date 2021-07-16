@@ -28,5 +28,8 @@ jobs:
           AWS_REGION: 'eu-west-2'
           SOURCE_DIR: 'out/make/squirrel.windows/x64'
           DEST_DIR: RELEASES/win32/${{ env.PACKAGE_VERSION }}
+      - name: Write JSON POST data
+        run: 'echo '{"version": "${{ env.PACKAGE_VERSION }}", "platform": "win32", "accessKey": "${{ secrets.AWS_UPDATE_SERVER_ACCESS_KEY }}"}' > data.json'
+      - run: cat data.json
       - name: Adding to update server
-        run: 'curl -d "{"version": "${{ env.PACKAGE_VERSION }}", "platform": "win32" }" -H "Content-Type: application/json" -X POST https://aws.loc0ded.com/addRelease'
+        run: 'curl -d "@data.json" -H "Content-Type: application/json" -X POST https://aws.loc0ded.com/addRelease'
