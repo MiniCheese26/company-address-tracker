@@ -157,7 +157,7 @@ const createWindow = (): void => {
   });
 
   autoUpdater.setFeedURL({
-	url: 'https://companyaddresstrackerpseudo.s3.eu-west-2.amazonaws.com/RELEASES/RELEASES'
+	url: 'https://aws.loc0ded.com/update/win32/1.0.0'
   });
 
   autoUpdater.checkForUpdates();
