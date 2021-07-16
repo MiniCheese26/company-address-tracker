@@ -29,4 +29,4 @@ jobs:
           SOURCE_DIR: 'out/make/squirrel.windows/x64'
           DEST_DIR: RELEASES/win32/${{ env.PACKAGE_VERSION }}
       - name: Adding to update server
-        run: 'curl -d '{"version": "${{ env.PACKAGE_VERSION }}", "platform": "win32" }' -H "Content-Type: application/json" -X POST https://aws.loc0ded.com/addRelease'
+        run: 'curl -d "{"version": "${{ env.PACKAGE_VERSION }}", "platform": "win32" }" -H "Content-Type: application/json" -X POST https://aws.loc0ded.com/addRelease'
