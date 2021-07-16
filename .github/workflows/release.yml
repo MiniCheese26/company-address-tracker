@@ -12,7 +12,6 @@ jobs:
           cache: 'yarn'
       - name: Get package version
         run: echo "PACKAGE_VERSION=$(cat package.json | jq -r '.version')" >> $GITHUB_ENV
-      - run: echo RELEASES/win32/${{ env.PACKAGE_VERSION }}
       - name: Install wine
         run: sudo dpkg --add-architecture i386 && sudo apt-get update && sudo apt-get install wine -y
       - run: yarn install
@@ -29,4 +28,5 @@ jobs:
           AWS_REGION: 'eu-west-2'
           SOURCE_DIR: 'out/make/squirrel.windows/x64'
           DEST_DIR: RELEASES/win32/${{ env.PACKAGE_VERSION }}
-
+      - name: Adding to update server
+        run: 'curl -d '{"version": "${{ env.PACKAGE_VERSION }}", "platform": "win32" }' -H "Content-Type: application/json" -X POST https://aws.loc0ded.com/addRelease'

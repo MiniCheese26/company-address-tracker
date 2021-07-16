@@ -1,6 +1,6 @@
 {
   "name": "company-address-tracker",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "Here to track addresses",
   "main": ".webpack/main",
   "scripts": {
@@ -28,8 +28,7 @@
           "name": "@electron-forge/maker-squirrel",
           "config": {
             "name": "company-address-tracker",
-            "authors": "Emily Medhurst",
-            "remoteReleases": "https://companyaddresstrackerpseudo.s3.eu-west-2.amazonaws.com/RELEASES/"
+            "authors": "Emily Medhurst"
           }
         }
       ],
