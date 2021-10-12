@@ -55,7 +55,7 @@ const Cog = styled(CogIcon)`
 `;
 
 export type AddBarProps = {
-  reloadResults: () => void
+  reloadResults: (appending?: boolean, searching?: boolean, incrementOffset?: number) => void
 }
 
 export default function AddBar(props: AddBarProps) {

@@ -25,7 +25,7 @@ export default function SettingsModal(props: SettingsModalProps) {
 		</CrossContainer>
 	  </RowContainer>
 	  <RowContainer>
-		<InputField value={'STILL WORKING ON THIS, IGNORE'}/>
+		<InputField value={'STILL WORKING ON THIS, IGNORE'} readOnly={true}/>
 	  </RowContainer>
 	</ModalContainer>
   );

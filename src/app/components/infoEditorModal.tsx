@@ -5,14 +5,14 @@ import {Plus as PLusIcon} from '@styled-icons/boxicons-regular/Plus';
 import {Minus as MinusIcon} from '@styled-icons/boxicons-regular/Minus';
 import {SearchResult} from 'App/appRoot';
 import {
-  Cross,
-  CrossContainer,
-  InputActionContainer,
-  InputField,
-  InputFieldContainer,
-  InputLabel,
-  ModalContainer,
-  RowContainer
+	Cross,
+	CrossContainer,
+	InputActionContainer,
+	InputField,
+	InputFieldContainer,
+	InputLabel,
+	ModalContainer,
+	RowContainer
 } from 'Styles/modal';
 import useSettings from 'App/hooks/useSettings';
 import {Settings} from 'Types/types';
@@ -52,7 +52,7 @@ const Checkmark = styled(CheckmarkOutline)`
 `;
 
 export type InfoEditorModalProps = {
-  reloadResults: () => void,
+  reloadResults: (appending?: boolean, searching?: boolean, incrementOffset?: number) => void,
   setToggled: React.Dispatch<React.SetStateAction<boolean>>,
   operation: 'update' | 'insert',
   existingSearchResult?: SearchResult
@@ -74,6 +74,10 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 	addressRefs.current = addressRefs.current.slice(0, numberOfAddressLines);
   }, [numberOfAddressLines]);
 
+  const assignSettings = async () => {
+    settings.current = await reloadSettings();
+  };
+
   useEffect(() => {
 	if (props.existingSearchResult) {
 	  companyNameRef.current.value = props.existingSearchResult.company_name;
@@ -83,7 +87,7 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 	  setNumberOfAddressLines(props.existingSearchResult.address_lines.split(', ').length);
 	}
 
-	reloadSettings(settings.current);
+	assignSettings();
   }, []);
 
   const onSubmitClick = async () => {
@@ -182,12 +186,12 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 		  cityRef.current.value = '';
 		  countyRef.current.value = '';
 		  postcodeRef.current.value = '';
-		  countryRef.current.value = '';
+		  countryRef.current.value = 'United Kingdom';
 		  addressRefs.current[0].value = '';
 		  setNumberOfAddressLines(1);
 		}
 
-		props.reloadResults();
+		props.reloadResults(props.operation === 'insert', false, 1);
 	  }
 	}
   };
@@ -200,11 +204,17 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 	setNumberOfAddressLines(prev => prev - 1);
   };
 
+  const onKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      await onSubmitClick();
+	}
+  };
+
   const addressLines: JSX.Element[] = [];
 
   [...Array(numberOfAddressLines).keys()].forEach((v) => {
 	addressLines.push((
-	  <RowContainer>
+	  <RowContainer key={v}>
 		<InputLabel>Address Line {v + 1}</InputLabel>
 		<InputFieldContainer>
 		  {props.existingSearchResult
@@ -251,7 +261,7 @@ export default function InfoEditorModal(props: InfoEditorModalProps) {
 	  </RowContainer>
 	  <RowContainer>
 		<InputLabel>Postcode</InputLabel>
-		<InputField ref={postcodeRef}/>
+		<InputField ref={postcodeRef} onKeyDown={(event) => onKeyDown(event)}/>
 	  </RowContainer>
 	  <RowContainer>
 		<AddButton style={error ? {backgroundColor: '#E73D23'} : null} onClick={() => onSubmitClick()}>

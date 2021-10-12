@@ -33,6 +33,5 @@ jobs:
         with:
           name: 'data.json'
           json: '{"version":"${{ env.PACKAGE_VERSION }}", "platform":"win32", "accessKey":"${{ secrets.AWS_UPDATE_SERVER_ACCESS_KEY }}"}'
-      - run: cat data.json
       - name: Adding to update server
         run: 'curl -d "@data.json" -H "Content-Type: application/json" -X POST https://aws.loc0ded.com/addRelease'

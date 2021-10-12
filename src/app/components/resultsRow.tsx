@@ -7,6 +7,7 @@ import {CheckmarkSquareOutline} from '@styled-icons/evaicons-outline';
 import {SearchResult} from 'App/appRoot';
 import InfoEditorModal from 'Components/infoEditorModal';
 import {clipboard} from 'electron';
+import ReactTooltip from 'react-tooltip';
 
 const electron = window.require('electron');
 const ipcRenderer = electron.ipcRenderer;
@@ -134,7 +135,7 @@ const ResultsAddress = styled.div`
 
 export type ResultsRowProps = {
   searchResult: SearchResult,
-  reloadResults: () => void
+  reloadResults: (appending?: boolean, searching?: boolean, incrementOffset?: number) => void
 }
 
 export default function ResultsRow(props: ResultsRowProps) {
@@ -190,12 +191,18 @@ export default function ResultsRow(props: ResultsRowProps) {
 	  {editToggle ? <InfoEditorModal reloadResults={props.reloadResults} setToggled={setEditToggle} operation={'update'}
 									 existingSearchResult={props.searchResult}/> : null}
 	  <ResultsAction>
-		<IconContainer onClick={() => onDeleteClick()}>
+		<IconContainer data-tip data-for='deleteHelp' onClick={() => onDeleteClick()}>
 		  <Delete/>
 		</IconContainer>
-		<IconContainer onClick={() => onEditClick()}>
+		<ReactTooltip id='deleteHelp' type='dark' effect='solid' delayShow={400}>
+		  Delete Address Details
+		</ReactTooltip>
+		<IconContainer data-tip data-for='editHelp' onClick={() => onEditClick()}>
 		  <Edit/>
 		</IconContainer>
+		<ReactTooltip id='editHelp' type='dark' effect='solid' delayShow={400}>
+		  Edit Address Details
+		</ReactTooltip>
 	  </ResultsAction>
 	  <ResultsCompany>
 		<ResultsBorderContainer>
@@ -210,9 +217,12 @@ export default function ResultsRow(props: ResultsRowProps) {
 	  <ResultsCopy>
 		<ResultsBorderContainer>
 		  <ResultsCopyContainer>
-			<IconContainer onClick={() => toggleOnCopyClick()}>
-			  {copyToggle ? <Checkmark/> : <Copy/>}
+			<IconContainer data-tip data-for='copyHelp' onClick={() => toggleOnCopyClick()}>
+				{copyToggle ? <Checkmark/> : <Copy/>}
 			</IconContainer>
+			<ReactTooltip id='copyHelp' type='dark' effect='solid' delayShow={400}>
+			  Copy Address Details
+			</ReactTooltip>
 		  </ResultsCopyContainer>
 		</ResultsBorderContainer>
 	  </ResultsCopy>

@@ -1,9 +1,9 @@
-import {app, autoUpdater, BrowserWindow, ipcMain} from 'electron';
+import {app, BrowserWindow, ipcMain} from 'electron';
 import * as fs from 'fs/promises';
 import contextMenu from 'electron-context-menu';
 import {QueryResult} from 'pg';
 
-const { Pool} = require('pg');
+const {Pool} = require('pg');
 
 contextMenu();
 
@@ -57,7 +57,7 @@ const createWindow = (): void => {
 
   const poolConfig = new Pool({
 	user: 'user',
-	host: 'ec2-18-168-226-3.eu-west-2.compute.amazonaws.com',
+	host: 'ec2-18-134-170-186.eu-west-2.compute.amazonaws.com',
 	database: 'addresstrackerapp',
 	port: 5432,
   });
@@ -110,16 +110,16 @@ const createWindow = (): void => {
   });
 
   ipcMain.handle('to-query-postgres', async (event, args: PostgresQueryArgs) => {
-    const client = await poolConfig.connect();
+	const client = await poolConfig.connect();
 
-    try {
+	try {
 	  const queryResult = await client.query(args.query, args.args);
 
 	  if (queryResult) {
 		return {rowCount: queryResult.rowCount, rows: queryResult.rows};
 	  }
 	} finally {
-      client.release();
+	  client.release();
 	}
 
 	return undefined;
@@ -130,37 +130,26 @@ const createWindow = (): void => {
 
 	const results: QueryResult[] = [];
 
-	for (const x of args.args) {
-	  const queryResult = await client.query(args.query, x);
-	  results.push(queryResult);
+	try {
+	  for (const x of args.args) {
+		const queryResult = await client.query(args.query, x);
+		results.push(queryResult);
+	  }
+	} finally {
+	  client.release();
 	}
 
-	client.release();
-
-	return results.map(x => ({rowCount: x.rowCount, rows: x.rows}));
+	return results.map(x => (
+	  {rowCount: x.rowCount, rows: x.rows}
+	));
   });
 
-  autoUpdater.on('checking-for-update', () => {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!checking');
-  });
+  (
+	async () => {
+	  //await runUpdateCheck();
+	}
+  )();
 
-  autoUpdater.on('update-available', () => {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!available');
-  });
-
-  autoUpdater.on('update-not-available', () => {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!not available');
-  });
-
-  autoUpdater.on('error', (err) => {
-	console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!ERROR', err);
-  });
-
-  autoUpdater.setFeedURL({
-	url: 'https://aws.loc0ded.com/update/win32/1.0.0'
-  });
-
-  autoUpdater.checkForUpdates();
 
   // Set global temporary directory for things like auto update downloads, creating it if it doesn't exist already.
   /*const tempPath = path.join(app.getPath('temp'), 'NTWRK');

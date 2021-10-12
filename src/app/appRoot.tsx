@@ -37,29 +37,44 @@ export default function App() {
   const settings = useRef<Settings>({userId: ''});
   const [reloadData, writeSettings] = useSettings();
   const [isLoading, setIsLoading] = useState(false);
+  const offset = useRef(0);
+
+  const assignSettings = async () => {
+	settings.current = await reloadData();
+  };
 
   useEffect(() => {
-	reloadData(settings.current).then(() => {
+	assignSettings().then(() => {
 	  const userId = nanoid(5);
 
 	  if (!settings.current.userId) {
-		(async () => {
-		  const result = await ipcRenderer.invoke(
-			'to-query-postgres',
-			{query: 'INSERT INTO users (id, username) VALUES ($1, $2)', args: [userId, 'emily']}
-		  );
+		(
+		  async () => {
+			const result = await ipcRenderer.invoke(
+			  'to-query-postgres',
+			  {query: 'INSERT INTO users (id, username) VALUES ($1, $2)', args: [userId, 'emily']}
+			);
 
-		  if (result?.rowCount > 0) {
-			settings.current.userId = userId;
-			writeSettings(settings.current);
+			if (result?.rowCount > 0) {
+			  settings.current.userId = userId;
+			  writeSettings(settings.current);
+			}
 		  }
-		})();
+		)();
 	  }
 	});
   }, []);
 
-  const reloadResults = async () => {
-    setIsLoading(true);
+  const reloadResults = async (updating?: boolean, searching?: boolean, incrementOffset?: number) => {
+	setIsLoading(searching);
+
+	let localOffset = offset.current;
+	let limit = 7;
+
+	if (!updating && localOffset > 0) {
+	  localOffset = 0;
+	  limit = offset.current;
+	}
 
 	const results = await ipcRenderer.invoke('to-query-postgres', {
 	  query: `SELECT addresses.id,
@@ -76,18 +91,51 @@ export default function App() {
                        OR addresses.postcode LIKE $1
                        AND addresses.user_id = $2
                     GROUP BY addresses.id, time_added
-                    ORDER BY time_added DESC
-                    LIMIT 10`,
+                    ORDER BY time_added ASC
+                    LIMIT ${limit} OFFSET ${localOffset};`,
 	  args: ['%' + currentSearchTerm + '%', settings.current.userId]
 	});
 
-	setResults(results.rows);
+	if (results.rows.length === 0) {
+	  if (!updating) {
+		setResults(results.rows);
+	  }
+
+	  setIsLoading(false);
+	  return false;
+	}
+
+	if (updating) {
+	  setResults(prev => [...prev, ...results.rows]);
+	} else {
+	  setResults(results.rows);
+	}
+
+	if (incrementOffset) {
+	  offset.current += incrementOffset;
+	}
+
+	if (offset.current === 0) {
+	  offset.current += results.rows.length;
+	}
+
 	setIsLoading(false);
+	return true;
   };
 
   useEffect(() => {
-	reloadResults();
+	reloadResults(false, true);
   }, [currentSearchTerm]);
+
+  const onHitBottomOfResults = async () => {
+	const result = await reloadResults(true);
+
+	if (!result) {
+	  offset.current += results.length - offset.current;
+	} else {
+	  offset.current += 7;
+	}
+  };
 
   return (
 	<RootContainer>
@@ -95,7 +143,8 @@ export default function App() {
 	  <GlobalFonts/>
 	  <AddBar reloadResults={reloadResults}/>
 	  <SearchBar setResults={setResults} setCurrentSearchTerm={setCurrentSearchTerm}/>
-	  <Results searchResults={results} reloadResults={reloadResults}/>
+	  <Results isLoading={isLoading} searchResults={results} reloadResults={reloadResults}
+			   onHitBottomOfResults={onHitBottomOfResults}/>
 	</RootContainer>
   );
 }
