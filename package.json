@@ -58,8 +58,6 @@
           "config": {
             "bucket": "companyaddresstrackerpseudo",
             "public": true,
-            "secretAccessKey": "sQgGZ1lCZDbGEmAfqkqwjLMhy7blSrMOuQ1aG7ht",
-            "accessKeyId": "AKIAQWXRPHKDXS3VME3A",
             "folder": "RELEASES"
           }
         }
